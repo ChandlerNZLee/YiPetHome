@@ -1,0 +1,271 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model addresses {
+  id         Int    @id @default(autoincrement())
+  province   String @db.VarChar(100)
+  city       String @db.VarChar(100)
+  details    String @db.VarChar(100)
+  mobile     String @db.VarChar(100)
+  postcode   String @db.VarChar(100)
+  contact    String @db.VarChar(100)
+  email      String @db.VarChar(100)
+  longitude  String @db.VarChar(100)
+  latitude   String @db.VarChar(100)
+  is_default Int    @default(0)
+}
+
+model appointment_services {
+  id             Int @id @default(autoincrement())
+  appointment_id Int
+  service_id     Int
+}
+
+model appointment_slots {
+  id             Int @id @default(autoincrement())
+  appointment_id Int
+  slot_id        Int
+}
+
+model appointments {
+  id                 Int @id @default(autoincrement())
+  type               Int
+  user_id            Int
+  pet_id             Int
+  shop_id            Int
+  groomer_id         Int
+  origin_price       Decimal @db.Decimal(10, 2)
+  discount           Decimal @db.Decimal(10, 2)
+  price              Decimal @db.Decimal(10, 2)
+  payment_status     Int
+  appointment_status Int
+  notes              String  @db.VarChar(255)
+}
+
+model banners {
+  id                Int    @id @default(autoincrement())
+  shop_id           Int
+  title             String @db.VarChar(100)
+  description       String @db.VarChar(255)
+  image             String @db.VarChar(255)
+  url               String @db.VarChar(255)
+  activation_status Int
+  sort_order        Int
+}
+
+model groomer_slots {
+  id         Int    @id(map: "room_slots_pkey") @default(autoincrement())
+  groomer_id Int
+  start_time String @db.VarChar(100)
+  end_time   String @db.VarChar(100)
+}
+
+model groomers {
+  id          Int     @id @default(autoincrement())
+  shop_id     Int
+  name        String  @db.VarChar(100)
+  type        Int
+  experience  Int
+  customers   Int
+  description String  @db.VarChar(255)
+  avatar      String  @default("") @db.VarChar(255)
+  price       Decimal @default(0.00) @db.Decimal(10, 2)
+  shop        shops   @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_groomers_shop")
+}
+
+model operation_records {
+  id         Int    @id @default(autoincrement())
+  user_id    Int
+  operation  String @db.VarChar(255)
+  table_name String @db.VarChar(100)
+  time       String @db.VarChar(100)
+}
+
+model order_products {
+  id         Int     @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  stock_id   Int     
+  amount     Int
+  price      Decimal @db.Decimal(10, 2)
+}
+
+model orders {
+  id              Int     @id @default(autoincrement())
+  user_id         Int
+  address_id      Int
+  time            String  @db.VarChar(100)
+  total_price     Decimal @db.Decimal(10, 2)
+  payment_status  Int
+  order_status    Int
+  tracking_number String  @db.VarChar(255)
+}
+
+model pet_grooms {
+  id         Int    @id @default(autoincrement())
+  pet_id     Int
+  groom_id   Int
+  groom_date String @db.VarChar(100)
+}
+
+model pet_vaccines {
+  id           Int    @id @default(autoincrement())
+  pet_id       Int
+  vaccine_name String @db.VarChar(100)
+  vaccine_date String @db.VarChar(100)
+  next_date    String @db.VarChar(100)
+}
+
+model pet_weights {
+  id             Int     @id @default(autoincrement())
+  pet_id         Int
+  weight         Decimal @db.Decimal(10, 1)
+  record_date    String  @db.VarChar(100)
+  appointment_id Int
+  pet            pets    @relation(fields: [pet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pet_weights_pet")
+}
+
+model pets {
+  id                Int           @id @default(autoincrement())
+  user_id           Int
+  avatar            String        @db.VarChar(255)
+  name              String        @db.VarChar(100)
+  gender            Int
+  category          Int
+  fur_type          Int
+  birthday          String        @db.VarChar(100)
+  activation_status Int
+  pet_weights       pet_weights[]
+}
+
+model product_images {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  url        String   @db.VarChar(255)
+  sort_order Int
+  product    products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_images_product")
+}
+
+model product_stocks {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  shop_id    Int
+  size       String   @db.VarChar(100)
+  stock      Int
+  price      Decimal  @db.Decimal(10, 2)
+  discount   Decimal  @db.Decimal(10, 2)
+  product    products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_product_stocks_product")
+}
+
+model products {
+  id             Int              @id @default(autoincrement())
+  category       Int
+  type           Int
+  name           String           @db.VarChar(100)
+  name_zh        String           @db.VarChar(100)
+  description    String           @db.VarChar(255)
+  product_images product_images[]
+  product_stocks product_stocks[]
+}
+
+model recharge_bonuses {
+  id                Int    @id @default(autoincrement())
+  name              String @db.VarChar(100)
+  recharge_amount   Int
+  gift_amount       Int
+  activation_status Int
+  sort_order        Int
+}
+
+model recharge_records {
+  id             Int     @id @default(autoincrement())
+  user_id        Int
+  bonus_id       Int
+  balance_before Decimal @db.Decimal(10, 2)
+  balance_after  Decimal @db.Decimal(10, 2)
+  create_time    String  @db.VarChar(100)
+}
+
+model service_prices {
+  id          Int      @id @default(autoincrement())
+  service_id  Int
+  category    Int
+  fur_type    Int
+  duration    Int
+  price       Decimal  @db.Decimal(10, 2)
+  weight_from Int
+  weight_to   Int
+  service     services @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_service_prices_service")
+}
+
+model services {
+  id          Int              @id @default(autoincrement())
+  type        Int
+  name        String           @db.VarChar(100)
+  description String           @db.VarChar(255)
+  image       String           @db.VarChar(255)
+  prices      service_prices[]
+}
+
+model shops {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(100)
+  address      String     @db.VarChar(100)
+  longitude    String     @db.VarChar(100)
+  latitude     String     @db.VarChar(100)
+  contact      String     @db.VarChar(100)
+  opening_time String     @db.VarChar(100)
+  closing_time String     @db.VarChar(100)
+  description  String     @db.VarChar(255)
+  image        String     @default("") @db.VarChar(255)
+  groomers     groomers[]
+}
+
+model spend_records {
+  id             Int     @id @default(autoincrement())
+  user_id        Int
+  type           Int
+  record_id      Int
+  spend_amount   Decimal @db.Decimal(10, 2)
+  balance_before Decimal @db.Decimal(10, 2)
+  balance_after  Decimal @db.Decimal(10, 2)
+  create_time    String  @db.VarChar(100)
+}
+
+model stock_records {
+  id            Int    @id @default(autoincrement())
+  user_id       Int
+  stock_id      Int
+  change_amount Int
+  change_reason String @db.VarChar(100)
+  change_time   String @db.VarChar(100)
+}
+
+model user_addresses {
+  id         Int @id @default(autoincrement())
+  user_id    Int 
+  address_id Int 
+}
+
+model users {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique @db.VarChar(100)
+  password      String    @db.VarChar(255)
+  role          Int
+  shop_id       Int?
+  avatar        String?   @db.VarChar(255)
+  mobile        String    @db.VarChar(100)
+  email         String    @db.VarChar(100)
+  first_name    String    @db.VarChar(100)
+  last_name     String    @db.VarChar(100)
+  balance       Decimal   @db.Decimal(10, 2)
+  reset_token   String?   @db.VarChar(255)
+  reset_expires DateTime? @db.Timestamptz(6)
+}

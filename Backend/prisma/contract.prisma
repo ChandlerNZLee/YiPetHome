@@ -1,0 +1,339 @@
+// use prisma-next
+// Contract inferred from the live database schema. Edit as needed, then run `prisma contract emit`.
+
+model Addresses {
+  id        Int    @id(map: "addresses_pkey") @default(autoincrement())
+  province  String
+  city      String
+  details   String
+  mobile    String
+  postcode  String
+  contact   String
+  email     String
+  longitude String
+  latitude  String
+
+  userAddresses UserAddresses[]
+
+  @@map("addresses")
+}
+
+model AppointmentServices {
+  id            Int @id(map: "appointment_services_pkey") @default(autoincrement())
+  appointmentId Int @map("appointment_id")
+  serviceId     Int @map("service_id")
+
+  @@map("appointment_services")
+}
+
+model AppointmentSlots {
+  id            Int @id(map: "appointment_slots_pkey") @default(autoincrement())
+  appointmentId Int @map("appointment_id")
+  slotId        Int @map("slot_id")
+
+  @@map("appointment_slots")
+}
+
+model Appointments {
+  id                Int    @id(map: "appointments_pkey") @default(autoincrement())
+  _type             Int    @map("type")
+  userId            Int    @map("user_id")
+  petId             Int    @map("pet_id")
+  shopId            Int    @map("shop_id")
+  groomerId         Int    @map("groomer_id")
+  originPrice       Float  @map("origin_price")
+  discount          Float
+  price             Float
+  paymentStatus     Int    @map("payment_status")
+  appointmentStatus Int    @map("appointment_status")
+  notes             String
+
+  @@map("appointments")
+}
+
+model Banners {
+  id               Int    @id(map: "banners_pkey") @default(autoincrement())
+  shopId           Int    @map("shop_id")
+  title            String
+  description      String
+  image            String
+  url              String
+  activationStatus Int    @map("activation_status")
+  sortOrder        Int    @map("sort_order")
+
+  @@map("banners")
+}
+
+model GroomerSlots {
+  id        Int    @id(map: "room_slots_pkey") @default(autoincrement())
+  groomerId Int    @map("groomer_id")
+  startTime String @map("start_time")
+  endTime   String @map("end_time")
+
+  @@map("groomer_slots")
+}
+
+model Shops {
+  id          Int        @id(map: "shops_pkey") @default(autoincrement())
+  name        String
+  address     String
+  longitude   String
+  latitude    String
+  contact     String
+  openingTime String     @map("opening_time")
+  closingTime String     @map("closing_time")
+  description String
+  image       String     @default("")
+  groomers    Groomers[]
+
+  @@map("shops")
+}
+
+model Groomers {
+  id          Int    @id(map: "groomers_pkey") @default(autoincrement())
+  shopId      Int    @map("shop_id")
+  name        String
+  _type       Int    @map("type")
+  experience  Int
+  customers   Int
+  description String
+  avatar      String
+  price       Float
+  shop        Shops  @relation(fields: [shopId], references: [id], map: "fk_groomers_shop", index: false)
+
+  @@map("groomers")
+}
+
+model OperationRecords {
+  id        Int    @id(map: "operation_records_pkey") @default(autoincrement())
+  userId    Int    @map("user_id")
+  operation String
+  tableName String @map("table_name")
+  time      String
+
+  @@map("operation_records")
+}
+
+model OrderProducts {
+  id        Int   @id(map: "order_products_pkey") @default(autoincrement())
+  orderId   Int   @map("order_id")
+  productId Int   @map("product_id")
+  amount    Int
+  price     Float
+  stockId   Int   @default(0) @map("stock_id")
+
+  @@map("order_products")
+}
+
+model Orders {
+  id             Int     @id(map: "orders_pkey") @default(autoincrement())
+  userId         Int     @map("user_id")
+  addressId      Int     @map("address_id")
+  time           String
+  totalPrice     Float   @map("total_price")
+  paymentStatus  Int     @default(0) @map("payment_status")
+  orderStatus    Int     @default(0) @map("order_status")
+  trackingNumber String? @map("tracking_number")
+
+  @@map("orders")
+}
+
+model Payments {
+  id                      Int      @id(map: "payments_pkey") @default(autoincrement())
+  orderId                 Int      @map("order_id")
+  provider                String   @default('STRIPE')
+  status                  Int      @default(0)
+  amount                  Float
+  currency                String   @default("nzd")
+  stripeCheckoutSessionId String?  @unique @map("stripe_checkout_session_id")
+  stripePaymentIntentId   String?  @unique @map("stripe_payment_intent_id")
+  failureMessage          String?  @map("failure_message")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @default(now()) @map("updated_at")
+
+  @@index([orderId])
+  @@index([status])
+  
+  @@map("payments")
+}
+
+model PetGrooms {
+  id        Int    @id(map: "pet_grooms_pkey") @default(autoincrement())
+  petId     Int    @map("pet_id")
+  groomId   Int    @map("groom_id")
+  groomDate String @map("groom_date")
+
+  @@map("pet_grooms")
+}
+
+model PetVaccines {
+  id          Int    @id(map: "pet_vaccines_pkey") @default(autoincrement())
+  petId       Int    @map("pet_id")
+  vaccineName String @map("vaccine_name")
+  vaccineDate String @map("vaccine_date")
+  nextDate    String @map("next_date")
+
+  @@map("pet_vaccines")
+}
+
+model Pets {
+  id               Int          @id(map: "pets_pkey") @default(autoincrement())
+  userId           Int          @map("user_id")
+  avatar           String
+  name             String
+  gender           Int
+  category         Int
+  furType          Int          @map("fur_type")
+  birthday         String
+  activationStatus Int          @map("activation_status")
+  petWeights       PetWeights[]
+
+  @@map("pets")
+}
+
+model PetWeights {
+  id            Int    @id(map: "pet_weights_pkey") @default(autoincrement())
+  petId         Int    @map("pet_id")
+  weight        Float
+  recordDate    String @map("record_date")
+  appointmentId Int    @map("appointment_id")
+  pet           Pets   @relation(fields: [petId], references: [id], map: "fk_pet_weights_pet", index: false)
+
+  @@map("pet_weights")
+}
+
+model Products {
+  id            Int             @id(map: "products_pkey") @default(autoincrement())
+  category      Int
+  _type         Int             @map("type")
+  name          String
+  nameZh        String          @map("name_zh")
+  description   String
+  productImages ProductImages[]
+  productStocks ProductStocks[]
+
+  @@map("products")
+}
+
+model ProductImages {
+  id        Int      @id(map: "product_images_pkey") @default(autoincrement())
+  productId Int      @map("product_id")
+  url       String
+  sortOrder Int      @map("sort_order")
+  product   Products @relation(fields: [productId], references: [id], map: "fk_product_images_product", index: false)
+
+  @@map("product_images")
+}
+
+model ProductStocks {
+  id        Int      @id(map: "product_stocks_pkey") @default(autoincrement())
+  productId Int      @map("product_id")
+  shopId    Int      @map("shop_id")
+  size      String
+  stock     Int
+  price     Float
+  discount  Float
+  product   Products @relation(fields: [productId], references: [id], map: "fk_product_stocks_product", index: false)
+
+  @@map("product_stocks")
+}
+
+model RechargeBonuses {
+  id               Int    @id(map: "recharge_bonuses_pkey") @default(autoincrement())
+  name             String
+  rechargeAmount   Int    @map("recharge_amount")
+  giftAmount       Int    @map("gift_amount")
+  activationStatus Int    @map("activation_status")
+  sortOrder        Int    @map("sort_order")
+
+  @@map("recharge_bonuses")
+}
+
+model RechargeRecords {
+  id            Int    @id(map: "recharge_records_pkey") @default(autoincrement())
+  userId        Int    @map("user_id")
+  bonusId       Int    @map("bonus_id")
+  balanceBefore Float  @map("balance_before")
+  balanceAfter  Float  @map("balance_after")
+  createTime    String @map("create_time")
+
+  @@map("recharge_records")
+}
+
+model Services {
+  id            Int             @id(map: "services_pkey") @default(autoincrement())
+  _type         Int             @map("type")
+  name          String
+  description   String
+  image         String
+  servicePrices ServicePrices[]
+
+  @@map("services")
+}
+
+model ServicePrices {
+  id         Int      @id(map: "service_prices_pkey") @default(autoincrement())
+  serviceId  Int      @map("service_id")
+  category   Int
+  furType    Int      @map("fur_type")
+  duration   Int
+  price      Float
+  weightFrom Int      @map("weight_from")
+  weightTo   Int      @map("weight_to")
+  service    Services @relation(fields: [serviceId], references: [id], map: "fk_service_prices_service", index: false)
+
+  @@map("service_prices")
+}
+
+model SpendRecords {
+  id            Int    @id(map: "spend_records_pkey") @default(autoincrement())
+  userId        Int    @map("user_id")
+  _type         Int    @map("type")
+  recordId      Int    @map("record_id")
+  spendAmount   Float  @map("spend_amount")
+  balanceBefore Float  @map("balance_before")
+  balanceAfter  Float  @map("balance_after")
+  createTime    String @map("create_time")
+
+  @@map("spend_records")
+}
+
+model StockRecords {
+  id           Int    @id(map: "stock_records_pkey") @default(autoincrement())
+  userId       Int    @map("user_id")
+  stockId      Int    @map("stock_id")
+  changeAmount Int    @map("change_amount")
+  changeReason String @map("change_reason")
+  changeTime   String @map("change_time")
+
+  @@map("stock_records")
+}
+
+model UserAddresses {
+  id        Int @id(map: "user_addresses_pkey") @default(autoincrement())
+  userId    Int @default(0) @map("user_id")
+  addressId Int @default(0) @map("address_id")
+  isDefault Int @default(0) @map("is_default")
+
+  address Addresses @relation(fields: [addressId], references: [id])
+
+  @@map("user_addresses")
+}
+
+model Users {
+  id           Int          @id(map: "users_pkey") @default(autoincrement())
+  username     String       @unique(map: "users_username_key")
+  password     String
+  role         Int
+  shopId       Int?         @map("shop_id")
+  avatar       String?
+  mobile       String
+  email        String       @unique(map: "users_email_key")
+  firstName    String       @map("first_name")
+  lastName     String       @map("last_name")
+  balance      Float
+  resetToken   String?      @map("reset_token")
+  resetExpires Timestamptz? @map("reset_expires")
+
+  @@map("users")
+}
