@@ -30,6 +30,7 @@ export class PaymentsController {
     ) {
         return this.paymentsService.createCheckoutSession(
             dto.orderId,
+            dto.orderType,
             dto.userId,
         );
     }

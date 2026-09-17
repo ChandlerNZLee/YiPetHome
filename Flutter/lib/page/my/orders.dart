@@ -44,10 +44,10 @@ class _OrdersPageState extends State<OrdersPage> {
     'Cancelled',
   ];
 
-  List<OrderData> _orders = [];
+  List<ShopOrderData> _orders = [];
 
-  List<OrderData> get _filteredOrders {
-    Iterable<OrderData> result = _orders;
+  List<ShopOrderData> get _filteredOrders {
+    Iterable<ShopOrderData> result = _orders;
 
     if (_selectedStatus != 0) {
       final selected = _statusTabs[_selectedStatus];
@@ -98,7 +98,7 @@ class _OrdersPageState extends State<OrdersPage> {
     );
   }
 
-  void _openOrder(OrderData order) {
+  void _openOrder(ShopOrderData order) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Open order ${order.trackingNumber}'),
@@ -107,11 +107,11 @@ class _OrdersPageState extends State<OrdersPage> {
     );
   }
 
-  void _viewDetails(OrderData order) {
+  void _viewDetails(ShopOrderData order) {
     _openOrder(order);
   }
 
-  void _payNow(OrderData order) {
+  void _payNow(ShopOrderData order) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Pay ${order.trackingNumber}'),
@@ -179,8 +179,10 @@ class _OrdersPageState extends State<OrdersPage> {
 
   Future<void> _getOrderList() async {
     try {
-      final res = await ShopService.instance.getOrderList();
-      final list = res.orders.map((item) => OrderData.fromModel(item)).toList();
+      final res = await ShopService.instance.getShopOrderList();
+      final list = res.orders
+          .map((item) => ShopOrderData.fromModel(item))
+          .toList();
 
       setState(() {
         _orders = list;
@@ -544,7 +546,7 @@ class OrderFilterButton extends StatelessWidget {
 }
 
 class OrderCard extends StatelessWidget {
-  final OrderData order;
+  final ShopOrderData order;
 
   final VoidCallback onTap;
   final VoidCallback onViewDetails;

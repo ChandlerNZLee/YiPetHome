@@ -24,76 +24,137 @@ export class PaymentsService {
 
     async createCheckoutSession(
         orderId: number,
+        orderType: number,
         userId: number,
     ) {
-        const order = await this.prisma.db.orm.public.Orders.where({ id: orderId }).first();
+        let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+        let totalPrice = 0;
+        if (orderType === 0) {
+            const order = await this.prisma.db.orm.public.ShopOrders.where({ id: orderId }).first();
 
-        if (!order) {
-            throw new NotFoundException('Order not found');
-        }
+            if (!order) {
+                throw new NotFoundException('Order not found');
+            }
 
-        if (order.userId !== userId) {
-            throw new BadRequestException(
-                'This order does not belong to the current user',
-            );
-        }
-
-        const succeededPayment = await this.prisma.db.orm.public.Payments.where({
-            orderId: order.id,
-            status: PAYMENT_STATUS.SUCCEEDED,
-        }).first();
-
-        if (succeededPayment) {
-            throw new BadRequestException(
-                'Order has already been paid',
-            );
-        }
-
-        if (order.paymentStatus === PAYMENT_STATUS.SUCCEEDED) {
-            throw new BadRequestException('Order has already been paid');
-        }
-
-        if (order.orderStatus === ORDER_STATUS.CANCELLED) {
-            throw new BadRequestException('Cancelled order cannot be paid');
-        }
-
-        const orderProducts = await this.prisma.db.orm.public.OrderProducts.where({ orderId: order.id }).all();
-
-        for (const item of orderProducts) {
-            const stock = await this.prisma.db.orm.public.ProductStocks.where({ id: item.stockId }).first();
-
-            if (!stock || stock.stock < item.amount) {
+            if (order.userId !== userId) {
                 throw new BadRequestException(
-                    `Insufficient stock for stock ID ${item.stockId}`,
+                    'This order does not belong to the current user',
                 );
             }
-        }
 
-        const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-            {
-                quantity: 1,
-                price_data: {
-                    currency:
-                        this.configService.get<string>(
-                            'STRIPE_CURRENCY',
-                        ) ?? 'nzd',
-                    unit_amount: Math.round(
-                        Number(order.totalPrice) * 100,
-                    ),
-                    product_data: {
-                        name: `Order #${order.id}`,
-                        metadata: {
-                            orderId: String(order.id),
+            const succeededPayment = await this.prisma.db.orm.public.Payments.where({
+                paymentType: 0,
+                shopOrderId: order.id,
+                status: PAYMENT_STATUS.SUCCEEDED,
+            }).first();
+
+            if (succeededPayment) {
+                throw new BadRequestException(
+                    'Order has already been paid',
+                );
+            }
+
+            if (order.paymentStatus === PAYMENT_STATUS.SUCCEEDED) {
+                throw new BadRequestException('Order has already been paid');
+            }
+
+            if (order.orderStatus === ORDER_STATUS.CANCELLED) {
+                throw new BadRequestException('Cancelled order cannot be paid');
+            }
+
+            const orderProducts = await this.prisma.db.orm.public.ShopOrderProducts.where({ orderId: order.id }).all();
+
+            for (const item of orderProducts) {
+                const stock = await this.prisma.db.orm.public.ProductStocks.where({ id: item.stockId }).first();
+
+                if (!stock || stock.stock < item.amount) {
+                    throw new BadRequestException(
+                        `Insufficient stock for stock ID ${item.stockId}`,
+                    );
+                }
+            }
+
+            totalPrice = Number(order.totalPrice);
+            lineItems = [
+                {
+                    quantity: 1,
+                    price_data: {
+                        currency:
+                            this.configService.get<string>(
+                                'STRIPE_CURRENCY',
+                            ) ?? 'nzd',
+                        unit_amount: Math.round(
+                            totalPrice * 100,
+                        ),
+                        product_data: {
+                            name: `Order #${orderId}`,
+                            metadata: {
+                                orderId: String(orderId),
+                            },
                         },
                     },
                 },
-            },
-        ];
+            ];
+        } else if (orderType === 1) {
+            const rechargeOrder = await this.prisma.db.orm.public.RechargeOrders.where({ id: orderId }).first();
+
+            if (!rechargeOrder) {
+                throw new NotFoundException('Recharge Order not found');
+            }
+
+            if (rechargeOrder.userId !== userId) {
+                throw new BadRequestException(
+                    'This order does not belong to the current user',
+                );
+            }
+
+            const succeededPayment = await this.prisma.db.orm.public.Payments.where({
+                paymentType: 1,
+                rechargeOrderId: rechargeOrder.id,
+                status: PAYMENT_STATUS.SUCCEEDED,
+            }).first();
+
+            if (succeededPayment) {
+                throw new BadRequestException(
+                    'Order has already been paid',
+                );
+            }
+
+            if (rechargeOrder.paymentStatus === PAYMENT_STATUS.SUCCEEDED) {
+                throw new BadRequestException('Order has already been paid');
+            }
+
+            totalPrice = Number(rechargeOrder.amount);
+            lineItems = [
+                {
+                    quantity: 1,
+                    price_data: {
+                        currency:
+                            this.configService.get<string>(
+                                'STRIPE_CURRENCY',
+                            ) ?? 'nzd',
+                        unit_amount: Math.round(
+                            totalPrice * 100,
+                        ),
+                        product_data: {
+                            name: `Order #${orderId}`,
+                            metadata: {
+                                orderId: String(orderId),
+                            },
+                        },
+                    },
+                },
+            ];
+        } else {
+            throw new BadRequestException('Appointment payment is not implemented yet');
+        }
 
         const payment = await this.prisma.db.orm.public.Payments.create({
-            orderId: order.id,
+            paymentType: orderType,
+            shopOrderId: orderType === 0 ? orderId : null,
+            rechargeOrderId: orderType === 1 ? orderId : null,
             provider: 'STRIPE',
-            amount: order.totalPrice,
+            amount: totalPrice,
             currency:
                 this.configService.get<string>(
                     'STRIPE_CURRENCY',
@@ -116,12 +177,14 @@ export class PaymentsService {
                             'STRIPE_CANCEL_URL',
                         ),
                     metadata: {
-                        orderId: String(order.id),
+                        orderId: String(orderId),
+                        orderType: String(orderType),
                         paymentId: String(payment.id),
                     },
                     payment_intent_data: {
                         metadata: {
-                            orderId: String(order.id),
+                            orderId: String(orderId),
+                            orderType: String(orderType),
                             paymentId: String(payment.id),
                         },
                     },
@@ -136,7 +199,8 @@ export class PaymentsService {
 
             return {
                 paymentId: payment.id,
-                orderId: order.id,
+                orderId,
+                orderType,
                 checkoutSessionId: session.id,
                 checkoutUrl: session.url,
             };
@@ -172,16 +236,8 @@ export class PaymentsService {
     }
 
     async handleWebhook(event: Stripe.Event) {
-        console.log('================================');
-        console.log('Stripe webhook received');
-        console.log('event.type:', event.type);
-        console.log('event.id:', event.id);
-        console.log('================================');
-
         switch (event.type) {
             case 'checkout.session.completed':
-                console.log('Handling checkout.session.completed');
-
                 await this.handleCheckoutCompleted(
                     event.data.object,
                 );
@@ -211,16 +267,13 @@ export class PaymentsService {
     }
 
     private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-        console.log('checkout.session.completed received');
         if (session.payment_status !== 'paid') {
-            console.log('Session is not paid, skipping update');
             return;
         }
 
         const orderId = Number(session.metadata?.orderId);
+        const orderType = Number(session.metadata?.orderType);
         const paymentId = Number(session.metadata?.paymentId);
-
-        console.log('[Stripe] Parsed metadata', { orderId, paymentId });
 
         if (!orderId || !paymentId) {
             throw new BadRequestException(
@@ -228,6 +281,30 @@ export class PaymentsService {
             );
         }
 
+        if (orderType === 0) {
+            return this.handleShopPaymentCompleted(
+                session,
+                orderId,
+                paymentId,
+            );
+        } else if (orderType === 1) {
+            return this.handleRechargePaymentCompleted(
+                session,
+                orderId,
+                paymentId,
+            );
+        } else {
+            return this.handleAppointmentPaymentCompleted(
+                session,
+                orderId,
+                paymentId,
+            );
+        }
+
+        throw new BadRequestException('Unsupported payment type');
+    }
+
+    private async handleShopPaymentCompleted(session: Stripe.Checkout.Session, orderId: number, paymentId: number) {
         const paymentIntentId =
             typeof session.payment_intent === 'string'
                 ? session.payment_intent
@@ -236,15 +313,19 @@ export class PaymentsService {
         await this.prisma.db.transaction(async (tx) => {
             const payment = await tx.orm.public.Payments.where({ id: paymentId }).first();
 
-            console.log('[Stripe] Payment record:', payment);
-
             if (!payment) {
                 throw new NotFoundException(
                     `Payment ${paymentId} not found`,
                 );
             }
 
-            if (payment.orderId !== orderId) {
+            if (payment.paymentType !== 0) {
+                throw new BadRequestException(
+                    'Invalid payment type',
+                );
+            }
+
+            if (payment.shopOrderId !== orderId) {
                 throw new BadRequestException(
                     'Payment does not belong to this order',
                 );
@@ -267,7 +348,7 @@ export class PaymentsService {
                 );
             }
 
-            const orderProducts = await tx.orm.public.OrderProducts.where({ orderId }).all();
+            const orderProducts = await tx.orm.public.ShopOrderProducts.where({ orderId }).all();
             for (const product of orderProducts) {
                 const stock = await tx.orm.public.ProductStocks.where({ id: product.stockId }).first();
 
@@ -286,7 +367,80 @@ export class PaymentsService {
                 });
             }
 
-            console.log(`[Stripe] Updating payment ${paymentId} → PAID`);
+            await tx.orm.public.Payments.where({ id: paymentId }).update({
+                status: PAYMENT_STATUS.SUCCEEDED,
+                stripeCheckoutSessionId: session.id,
+                stripePaymentIntentId: paymentIntentId,
+                updatedAt: Temporal.Now.instant(),
+            });
+
+            await tx.orm.public.ShopOrders.where({ id: orderId }).update({
+                paymentStatus: PAYMENT_STATUS.SUCCEEDED,
+                orderStatus: ORDER_STATUS.PENDING,
+            });
+        });
+    }
+
+    private async handleRechargePaymentCompleted(session: Stripe.Checkout.Session, orderId: number, paymentId: number) {
+        const paymentIntentId =
+            typeof session.payment_intent === 'string'
+                ? session.payment_intent
+                : session.payment_intent?.id ?? null;
+
+        await this.prisma.db.transaction(async (tx) => {
+            const payment = await tx.orm.public.Payments.where({ id: paymentId }).first();
+
+            if (!payment) {
+                throw new NotFoundException(
+                    `Payment ${paymentId} not found`,
+                );
+            }
+
+            if (payment.paymentType !== 1) {
+                throw new BadRequestException(
+                    'Invalid payment type',
+                );
+            }
+
+            if (payment.rechargeOrderId !== orderId) {
+                throw new BadRequestException(
+                    'Payment does not belong to this recharge order',
+                );
+            }
+
+            if (payment.status === PAYMENT_STATUS.SUCCEEDED) {
+                return;
+            }
+
+            const rechargeOrder = await tx.orm.public.RechargeOrders.where({ id: orderId }).first();
+            if (!rechargeOrder) {
+                throw new NotFoundException(
+                    `Recharge order ${orderId} not found`,
+                );
+            }
+
+            const expectedAmount = Math.round(Number(payment.amount) * 100);
+            if (session.amount_total !== expectedAmount) {
+                throw new BadRequestException(
+                    'Stripe payment amount does not match the order amount',
+                );
+            }
+
+            if (session.currency?.toLowerCase() !== payment.currency.toLowerCase()) {
+                throw new BadRequestException(
+                    'Stripe payment currency does not match',
+                );
+            }
+
+            const user = await tx.orm.public.Users.where({ id: rechargeOrder.userId }).first();
+            if (!user) {
+                throw new NotFoundException(
+                    `User ${rechargeOrder.userId} not found`,
+                );
+            }
+
+            const balanceBefore = Number(user.balance);
+            const balanceAfter = balanceBefore + Number(rechargeOrder.rechargeAmount);
 
             await tx.orm.public.Payments.where({ id: paymentId }).update({
                 status: PAYMENT_STATUS.SUCCEEDED,
@@ -295,55 +449,73 @@ export class PaymentsService {
                 updatedAt: Temporal.Now.instant(),
             });
 
-            console.log(`[Stripe] Updating order ${orderId} paymentStatus → PAID`);
-
-            await tx.orm.public.Orders.where({ id: orderId }).update({
+            await tx.orm.public.RechargeOrders.where({ id: orderId }).update({
                 paymentStatus: PAYMENT_STATUS.SUCCEEDED,
-                orderStatus: ORDER_STATUS.PENDING,
+                transactionId: paymentIntentId,
             });
 
-            console.log(`[Stripe] Order ${orderId} payment completed successfully`);
+            await tx.orm.public.Users.where({ id: user.id }).update({
+                balance: balanceAfter,
+            });
+
+            await tx.orm.public.RechargeRecords.create({
+                userId: user.id,
+                bonusId: rechargeOrder.bonusId,
+                balanceBefore,
+                balanceAfter,
+                createTime: new Date().toISOString(),
+            });
         });
+    }
+
+    private async handleAppointmentPaymentCompleted(session: Stripe.Checkout.Session, orderId: number, paymentId: number) {
+
     }
 
     private async handleCheckoutExpired(
         session: Stripe.Checkout.Session,
     ) {
-        const paymentId = Number(
-            session.metadata?.paymentId,
-        );
+        const paymentId = Number(session.metadata?.paymentId);
 
         if (!paymentId) {
             return;
         }
 
+        const payment = await this.prisma.db.orm.public.Payments.where({ id: paymentId }).first();
+
+        if (!payment) {
+            return;
+        }
+
+        if (payment.status === PAYMENT_STATUS.SUCCEEDED) {
+            return;
+        }
+
         await this.prisma.db.orm.public.Payments.where({
             id: paymentId,
-            status: ORDER_STATUS.PENDING,
         }).update({
             status: ORDER_STATUS.CANCELLED,
+            updatedAt: Temporal.Now.instant(),
         });
     }
 
     private async handlePaymentFailed(
         paymentIntent: Stripe.PaymentIntent,
     ) {
-        const paymentId = Number(
-            paymentIntent.metadata?.paymentId,
-        );
+        const paymentId = Number(paymentIntent.metadata?.paymentId);
 
         if (!paymentId) {
             return;
         }
 
-        const payment = await this.prisma.db.orm.public.Payments
-            .where({
-                id: paymentId,
-            })
-            .first();
+        const payment = await this.prisma.db.orm.public.Payments.where({ id: paymentId }).first();
 
         if (!payment) {
             throw new NotFoundException(`Payment ${paymentId} not found`);
+        }
+
+        if (payment.status === PAYMENT_STATUS.SUCCEEDED) {
+            return;
         }
 
         if (payment.status === PAYMENT_STATUS.FAILED) {
@@ -352,8 +524,7 @@ export class PaymentsService {
 
         await this.prisma.db.orm.public.Payments.where({ id: paymentId }).update({
             status: PAYMENT_STATUS.FAILED,
-            stripePaymentIntentId:
-                paymentIntent.id,
+            stripePaymentIntentId: paymentIntent.id,
             failureMessage:
                 paymentIntent.last_payment_error
                     ?.message ?? 'Payment failed',
@@ -381,14 +552,95 @@ export class PaymentsService {
             return;
         }
 
+        if (
+            payment.status ===
+            PAYMENT_STATUS.REFUNDED
+        ) {
+            return;
+        }
+
+        if (payment.paymentType === 0) {
+            await this.handleShopRefunded(payment.id);
+
+            return;
+        } else if (payment.paymentType === 1) {
+            await this.handleRechargeRefunded(payment.id);
+
+            return;
+        } else {
+            await this.handleAppointmentRefunded(payment.id);
+
+            return;
+        }
+    }
+
+    private async handleShopRefunded(paymentId: number) {
         await this.prisma.db.transaction(async (tx) => {
+            const payment = await tx.orm.public.Payments.where({ id: paymentId }).first();
+
+            if (!payment) {
+                throw new NotFoundException(`Payment ${paymentId} not found`);
+            }
+
+            if (payment.paymentType !== 0) {
+                throw new BadRequestException('Invalid payment type');
+            }
+
+            if (!payment.shopOrderId) {
+                throw new BadRequestException('Payment order ID is missing');
+            }
+
+            if (payment.status === PAYMENT_STATUS.REFUNDED) {
+                return;
+            }
+
             await tx.orm.public.Payments.where({ id: payment.id }).update({
                 status: PAYMENT_STATUS.REFUNDED,
                 updatedAt: Temporal.Now.instant(),
             });
-            await tx.orm.public.Orders.where({ id: payment.orderId }).update({
+
+            await tx.orm.public.ShopOrders.where({ id: payment.shopOrderId }).update({
                 paymentStatus: PAYMENT_STATUS.REFUNDED,
             });
         });
     }
+
+    private async handleRechargeRefunded(paymentId: number) {
+        await this.prisma.db.transaction(async (tx) => {
+            const payment = await tx.orm.public.Payments.where({ id: paymentId }).first();
+
+            if (!payment) {
+                throw new NotFoundException(`Payment ${paymentId} not found`);
+            }
+
+            if (payment.paymentType !== 1) {
+                throw new BadRequestException('Invalid payment type');
+            }
+
+            if (!payment.rechargeOrderId) {
+                throw new BadRequestException('Recharge order ID is missing');
+            }
+
+            if (payment.status === PAYMENT_STATUS.REFUNDED) {
+                return;
+            }
+
+            const rechargeOrder = await tx.orm.public.RechargeOrders.where({ id: payment.rechargeOrderId }).first();
+
+            if (!rechargeOrder) {
+                throw new NotFoundException(`Recharge order ${payment.rechargeOrderId} not found`);
+            }
+
+            await tx.orm.public.Payments.where({ id: payment.id }).update({
+                status: PAYMENT_STATUS.REFUNDED,
+                updatedAt: Temporal.Now.instant(),
+            });
+
+            await tx.orm.public.RechargeOrders.where({ id: rechargeOrder.id }).update({
+                paymentStatus: PAYMENT_STATUS.REFUNDED,
+            });
+        });
+    }
+
+    private async handleAppointmentRefunded(paymentId: number) { }
 }

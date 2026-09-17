@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import '../../services/ai-service.dart';
 import '../../core/network/api-exception.dart';
@@ -22,6 +23,10 @@ class _AIChatPageState extends State<AIChatPage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
+
+  final stt.SpeechToText _speech = stt.SpeechToText();
+
+  bool _isListening = false;
 
   final List<AiChatMessage> _messages = [];
 
@@ -202,13 +207,82 @@ class _AIChatPageState extends State<AIChatPage> {
     );
   }
 
-  void _startVoice() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Voice input'),
-        duration: Duration(seconds: 1),
-      ),
+  Future<void> _toggleVoice() async {
+    if (_isListening) {
+      await _stopVoice();
+      return;
+    }
+
+    final available = await _speech.initialize(
+      onStatus: (status) {
+        debugPrint('Speech status: $status');
+
+        if (status == 'done' || status == 'notListening') {
+          if (mounted) {
+            setState(() {
+              _isListening = false;
+            });
+          }
+        }
+      },
+      onError: (error) {
+        debugPrint('Speech error: $error');
+
+        if (mounted) {
+          setState(() {
+            _isListening = false;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Speech recognition failed: ${error.errorMsg}'),
+            ),
+          );
+        }
+      },
     );
+
+    if (!available) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Speech recognition is not available.')),
+      );
+
+      return;
+    }
+
+    setState(() {
+      _isListening = true;
+    });
+
+    await _speech.listen(
+      onResult: (result) {
+        if (!mounted) return;
+
+        final text = result.recognizedWords;
+
+        setState(() {
+          _controller.text = text;
+
+          _controller.selection = TextSelection.collapsed(
+            offset: _controller.text.length,
+          );
+        });
+      },
+    );
+  }
+
+  Future<void> _stopVoice() async {
+    await _speech.stop();
+
+    if (!mounted) return;
+
+    setState(() {
+      _isListening = false;
+    });
+
+    _focusNode.requestFocus();
   }
 
   void _openProduct(AiRecommendedProduct product) {
@@ -330,8 +404,9 @@ class _AIChatPageState extends State<AIChatPage> {
               controller: _controller,
               focusNode: _focusNode,
               onSend: _sendMessage,
-              onVoiceTap: _startVoice,
+              onVoiceTap: _toggleVoice,
               onImageTap: pickImage,
+              isListening: _isListening,
             ),
           ],
         ),
@@ -723,6 +798,7 @@ class AiChatInputBar extends StatelessWidget {
   final VoidCallback onSend;
   final VoidCallback onVoiceTap;
   final VoidCallback onImageTap;
+  final bool isListening;
 
   const AiChatInputBar({
     super.key,
@@ -731,6 +807,7 @@ class AiChatInputBar extends StatelessWidget {
     required this.onSend,
     required this.onVoiceTap,
     required this.onImageTap,
+    required this.isListening,
   });
 
   @override
@@ -741,7 +818,7 @@ class AiChatInputBar extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(22, 10, 22, bottom + 12),
       decoration: const BoxDecoration(color: Color(0xFFFCFDFB)),
       child: Container(
-        height: 56,
+        constraints: const BoxConstraints(minHeight: 56),
         padding: const EdgeInsets.fromLTRB(16, 6, 6, 6),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -756,6 +833,7 @@ class AiChatInputBar extends StatelessWidget {
           ],
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: TextField(
@@ -763,8 +841,9 @@ class AiChatInputBar extends StatelessWidget {
                 focusNode: focusNode,
                 minLines: 1,
                 maxLines: 4,
+                keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.send,
-                onSubmitted: (_) => onSend(),
+                onSubmitted: (value) => onSend(),
                 cursorColor: _AiChatColors.primary,
                 style: const TextStyle(
                   fontSize: 14,
@@ -801,11 +880,11 @@ class AiChatInputBar extends StatelessWidget {
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: onVoiceTap,
-                child: const SizedBox(
+                child: SizedBox(
                   width: 36,
                   height: 36,
                   child: Icon(
-                    Icons.mic_none_rounded,
+                    isListening ? Icons.stop_rounded : Icons.mic_none_rounded,
                     color: Colors.white,
                     size: 24,
                   ),

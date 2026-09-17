@@ -1295,7 +1295,8 @@ class _PaymentMethodDisplay extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (paymentMethod == PaymentMethodType.online) const _VisaLogo(),
+        if (paymentMethod == PaymentMethodType.online)
+          const _OnlinePaymentLogo(),
 
         const SizedBox(width: 6),
         Flexible(
@@ -1314,25 +1315,27 @@ class _PaymentMethodDisplay extends StatelessWidget {
   }
 }
 
-class _VisaLogo extends StatelessWidget {
-  const _VisaLogo();
+class _OnlinePaymentLogo extends StatelessWidget {
+  const _OnlinePaymentLogo({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      width: 66,
+      height: 44,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: const Color(0xFFF0F1F3)),
+        color: const Color(0xFFFBFCFB),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFF0F1F2)),
       ),
-      child: const Text(
-        'VISA',
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          fontStyle: FontStyle.italic,
-          color: Color(0xFF1739A1),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Image.asset(
+          'assets/images/payment/online-payment.png',
+          width: 56,
+          height: 34,
+          fit: BoxFit.contain,
         ),
       ),
     );

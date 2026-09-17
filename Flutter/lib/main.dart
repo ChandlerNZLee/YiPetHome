@@ -58,11 +58,15 @@ class _YiPetAppState extends State<YiPetApp> {
       final index =
           prefs.getInt('payment_type') ?? PaymentSummaryType.appointment.index;
       final type = PaymentSummaryType.values[index];
+      final bonus = type == PaymentSummaryType.topup
+          ? (prefs.getInt('bonus') ?? 0)
+          : 0;
 
       await navigatorKey.currentState?.push(
         MaterialPageRoute(
           builder: (_) => PaymentResultPage(
             amount: amount,
+            bonus: bonus,
             paymentMethod: PaymentMethodType.online,
             type: type,
           ),

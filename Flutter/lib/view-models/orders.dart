@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 import '../models/shop/order-model.dart';
 
-enum OrderStatus { toPay, processing, shipped, delivered, cancelled }
+enum ShopOrderStatus { toPay, processing, shipped, delivered, cancelled }
 
-class OrderData {
+class ShopOrderData {
   final int id;
   final int userId;
   final int addressId;
@@ -14,9 +14,9 @@ class OrderData {
   final int paymentStatus;
   final int orderStatus;
   final String trackingNumber;
-  final List<OrderProductData> products;
+  final List<ShopOrderProductData> products;
 
-  const OrderData({
+  const ShopOrderData({
     required this.id,
     required this.userId,
     required this.addressId,
@@ -28,12 +28,12 @@ class OrderData {
     required this.products,
   });
 
-  factory OrderData.fromModel(OrderModel model) {
+  factory ShopOrderData.fromModel(ShopOrderModel model) {
     final products = model.products
-        .map((product) => OrderProductData.fromModel(product))
+        .map((product) => ShopOrderProductData.fromModel(product))
         .toList();
 
-    return OrderData(
+    return ShopOrderData(
       id: model.id,
       userId: model.userId,
       addressId: model.addressId,
@@ -47,7 +47,7 @@ class OrderData {
   }
 }
 
-class OrderProductData {
+class ShopOrderProductData {
   final int id;
   final int orderId;
   final int productId;
@@ -56,7 +56,7 @@ class OrderProductData {
   final int stockId;
   final String image;
 
-  OrderProductData({
+  ShopOrderProductData({
     required this.id,
     required this.orderId,
     required this.productId,
@@ -66,8 +66,8 @@ class OrderProductData {
     required this.image,
   });
 
-  factory OrderProductData.fromModel(OrderProductModel model) {
-    return OrderProductData(
+  factory ShopOrderProductData.fromModel(ShopOrderProductModel model) {
+    return ShopOrderProductData(
       id: model.id,
       orderId: model.orderId,
       productId: model.productId,

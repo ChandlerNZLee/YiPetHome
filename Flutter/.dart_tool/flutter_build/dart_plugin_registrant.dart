@@ -30,6 +30,7 @@ import 'package:flutter_secure_storage_windows/flutter_secure_storage_windows.da
 import 'package:image_picker_windows/image_picker_windows.dart' as image_picker_windows;
 import 'package:path_provider_windows/path_provider_windows.dart' as path_provider_windows;
 import 'package:shared_preferences_windows/shared_preferences_windows.dart' as shared_preferences_windows;
+import 'package:speech_to_text_windows/speech_to_text_windows.dart' as speech_to_text_windows;
 import 'package:url_launcher_windows/url_launcher_windows.dart' as url_launcher_windows;
 
 @pragma('vm:entry-point')
@@ -254,6 +255,15 @@ class _PluginRegistrant {
       } catch (err) {
         print(
           '`shared_preferences_windows` threw an error: $err. '
+          'The app may not function as expected until you remove this plugin from pubspec.yaml'
+        );
+      }
+
+      try {
+        speech_to_text_windows.SpeechToTextWindows.registerWith();
+      } catch (err) {
+        print(
+          '`speech_to_text_windows` threw an error: $err. '
           'The app may not function as expected until you remove this plugin from pubspec.yaml'
         );
       }

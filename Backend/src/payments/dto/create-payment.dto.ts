@@ -10,5 +10,10 @@ export class CreatePaymentDto {
     @Type(() => Number)
     @IsInt()
     @IsPositive()
+    orderType!: number;
+
+    @Type(() => Number)
+    @IsInt()
+    @IsPositive()
     userId!: number;
 }

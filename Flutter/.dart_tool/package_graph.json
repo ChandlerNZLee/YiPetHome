@@ -15,6 +15,7 @@
         "image_picker",
         "provider",
         "shared_preferences",
+        "speech_to_text",
         "url_launcher"
       ],
       "devDependencies": [
@@ -63,6 +64,20 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "speech_to_text",
+      "version": "7.5.0",
+      "dependencies": [
+        "clock",
+        "flutter",
+        "flutter_web_plugins",
+        "json_annotation",
+        "meta",
+        "speech_to_text_platform_interface",
+        "speech_to_text_windows",
+        "web"
       ]
     },
     {
@@ -321,6 +336,35 @@
         "stream_channel",
         "string_scanner",
         "term_glyph"
+      ]
+    },
+    {
+      "name": "speech_to_text_windows",
+      "version": "1.0.1",
+      "dependencies": [
+        "flutter",
+        "speech_to_text_platform_interface"
+      ]
+    },
+    {
+      "name": "web",
+      "version": "1.1.1",
+      "dependencies": []
+    },
+    {
+      "name": "json_annotation",
+      "version": "4.12.0",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "speech_to_text_platform_interface",
+      "version": "2.4.0",
+      "dependencies": [
+        "flutter",
+        "meta",
+        "plugin_platform_interface"
       ]
     },
     {
@@ -747,11 +791,6 @@
         "source_span",
         "string_scanner"
       ]
-    },
-    {
-      "name": "web",
-      "version": "1.1.1",
-      "dependencies": []
     },
     {
       "name": "plugin_platform_interface",

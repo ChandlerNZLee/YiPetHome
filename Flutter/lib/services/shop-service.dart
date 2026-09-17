@@ -99,25 +99,39 @@ class ShopService {
     return result;
   }
 
-  Future<OrderResponse> createOrder(Map<String, dynamic> order) async {
-    final result = await _api.post<OrderResponse>(
-      '/orders',
+  Future<ShopOrderResponse> createShopOrder(Map<String, dynamic> order) async {
+    final result = await _api.post<ShopOrderResponse>(
+      '/shop-orders',
       data: order,
       parser: (data) {
-        return OrderResponse.fromJson(data);
+        return ShopOrderResponse.fromJson(data);
       },
     );
 
     return result;
   }
 
-  Future<PaymentResponse> checkPayment(int orderId) async {
+  Future<RechargeOrderResponse> createRechargeOrder(
+    Map<String, dynamic> order,
+  ) async {
+    final result = await _api.post<RechargeOrderResponse>(
+      '/recharge-orders',
+      data: order,
+      parser: (data) {
+        return RechargeOrderResponse.fromJson(data);
+      },
+    );
+
+    return result;
+  }
+
+  Future<PaymentResponse> checkPayment(int orderId, int orderType) async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
 
     final result = await _api.post<PaymentResponse>(
       '/payments/checkout',
-      data: {'orderId': orderId, 'userId': userId},
+      data: {'orderId': orderId, 'orderType': orderType, 'userId': userId},
       parser: (data) {
         return PaymentResponse.fromJson(data);
       },
@@ -126,14 +140,14 @@ class ShopService {
     return result;
   }
 
-  Future<OrderListResponse> getOrderList() async {
+  Future<ShopOrderListResponse> getShopOrderList() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
 
-    final result = await _api.get<OrderListResponse>(
-      '/orders/user/$userId',
+    final result = await _api.get<ShopOrderListResponse>(
+      '/shop-orders/user/$userId',
       parser: (data) {
-        return OrderListResponse.fromJson(data as List<dynamic>);
+        return ShopOrderListResponse.fromJson(data as List<dynamic>);
       },
     );
 

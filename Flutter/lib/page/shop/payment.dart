@@ -12,18 +12,17 @@ import '../../component/payment/summary.dart';
 
 import 'payment-result.dart';
 
-import '../../models/shop/order-model.dart';
-
 import '../../view-models/payment.dart';
 import '../../view-models/appointment.dart';
 import '../../view-models/cart.dart';
 import '../../view-models/address.dart';
+import '../../../view-models/top-up.dart';
 
 class PaymentPage extends ConsumerStatefulWidget {
   final PaymentSummaryType type;
   final PaymentAppointmentData? appointment;
   final AddressData? address;
-  final int? bounceId;
+  final TopUpData? bonus;
   final double amount;
 
   const PaymentPage({
@@ -31,7 +30,7 @@ class PaymentPage extends ConsumerStatefulWidget {
     required this.type,
     this.appointment,
     this.address,
-    this.bounceId,
+    this.bonus,
     required this.amount,
   });
 
@@ -80,7 +79,10 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
           freeShippingThreshold: 100.00,
         );
       case PaymentSummaryType.topup:
-        return TopUpPaymentSummary(amount: 1000.00, bonus: 520.00);
+        return TopUpPaymentSummary(
+          amount: widget.bonus!.amount.toDouble(),
+          bonus: widget.bonus!.bonus.toDouble(),
+        );
     }
   }
 
@@ -129,9 +131,35 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
           'addressId': widget.address!.id,
           'products': products,
         };
-        final res = await ShopService.instance.createOrder(order);
+        final res = await ShopService.instance.createShopOrder(order);
 
-        _checkPayment(res.order);
+        _checkPayment(res.order.id);
+      } on ApiException catch (e) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _processing = false;
+          });
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
+      }
+    } else if (widget.type == PaymentSummaryType.topup) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final userId = prefs.getInt('user_id');
+
+        final order = {'userId': userId, 'bonusId': widget.bonus!.id};
+        final res = await ShopService.instance.createRechargeOrder(order);
+
+        _checkPayment(res.order.id);
       } on ApiException catch (e) {
         if (!mounted) return;
 
@@ -164,6 +192,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
           MaterialPageRoute(
             builder: (_) => PaymentResultPage(
               amount: result.amount,
+              bonus: 0,
               paymentMethod: result.paymentMethod,
               type: widget.type,
             ),
@@ -189,19 +218,37 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
     }
   }
 
-  Future<void> _checkPayment(OrderModel order) async {
-    final subtotal = ref.watch(cartSubtotalProvider);
-    final shippingFee = subtotal >= 100 ? 0.0 : 4.90;
-    final amount = widget.type == PaymentSummaryType.shopping
-        ? (subtotal >= 100 ? subtotal : subtotal + shippingFee)
-        : widget.amount;
+  Future<void> _checkPayment(int orderId) async {
+    var amount = 0.00;
+    if (widget.type == PaymentSummaryType.shopping) {
+      final subtotal = ref.watch(cartSubtotalProvider);
+      final shippingFee = subtotal >= 100 ? 0.0 : 4.90;
+      amount = widget.type == PaymentSummaryType.shopping
+          ? (subtotal >= 100 ? subtotal : subtotal + shippingFee)
+          : widget.amount;
+    } else {
+      amount = widget.amount;
+    }
 
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble('order_amount', amount);
     prefs.setInt('payment_type', widget.type.index);
 
+    if (widget.type == PaymentSummaryType.topup) {
+      prefs.setInt('bonus', widget.bonus!.bonus);
+    }
+
+    var orderType = 0;
+    if (widget.type == PaymentSummaryType.shopping) {
+      orderType = 0;
+    } else if (widget.type == PaymentSummaryType.topup) {
+      orderType = 1;
+    } else if (widget.type == PaymentSummaryType.appointment) {
+      orderType = 2;
+    }
+
     try {
-      final res = await ShopService.instance.checkPayment(order.id);
+      final res = await ShopService.instance.checkPayment(orderId, orderType);
       openStripeCheckout(res.payment.checkoutUrl);
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -418,7 +465,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
             children: [
               PaymentRadio(selected: selected),
               const SizedBox(width: 8),
-              PaymentBrandLogo(type: PaymentMethodType.online),
+              OnlinePaymentLogo(),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -614,10 +661,8 @@ class PaymentRadio extends StatelessWidget {
   }
 }
 
-class PaymentBrandLogo extends StatelessWidget {
-  final PaymentMethodType type;
-
-  const PaymentBrandLogo({super.key, required this.type});
+class OnlinePaymentLogo extends StatelessWidget {
+  const OnlinePaymentLogo({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -630,112 +675,14 @@ class PaymentBrandLogo extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFF0F1F2)),
       ),
-      child: switch (type) {
-        PaymentMethodType.online => const VisaLogo(),
-        _ => const SizedBox(),
-      },
-    );
-  }
-}
-
-class VisaLogo extends StatelessWidget {
-  const VisaLogo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Text(
-      'VISA',
-      style: TextStyle(
-        fontSize: 23,
-        fontWeight: FontWeight.w900,
-        fontStyle: FontStyle.italic,
-        color: Color(0xFF1739A1),
-      ),
-    );
-  }
-}
-
-class MastercardLogo extends StatelessWidget {
-  const MastercardLogo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 48,
-      height: 30,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 2,
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFFF22E25),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 2,
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFFFFA000),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class AmexLogo extends StatelessWidget {
-  const AmexLogo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1479C8),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Text(
-        'AMEX',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w900,
-          color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Image.asset(
+          'assets/images/payment/online-payment.png',
+          width: 56,
+          height: 34,
+          fit: BoxFit.contain,
         ),
-      ),
-    );
-  }
-}
-
-class ApplePayLogo extends StatelessWidget {
-  const ApplePayLogo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Icon(Icons.apple_rounded, size: 24, color: Colors.black);
-  }
-}
-
-class GooglePayLogo extends StatelessWidget {
-  const GooglePayLogo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Text(
-      'G',
-      style: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.w800,
-        color: Color(0xFF4285F4),
       ),
     );
   }

@@ -36,14 +36,6 @@
       "model": "OperationRecords",
       "namespace": "public"
     },
-    "order_products": {
-      "model": "OrderProducts",
-      "namespace": "public"
-    },
-    "orders": {
-      "model": "Orders",
-      "namespace": "public"
-    },
     "payments": {
       "model": "Payments",
       "namespace": "public"
@@ -80,6 +72,10 @@
       "model": "RechargeBonuses",
       "namespace": "public"
     },
+    "recharge_orders": {
+      "model": "RechargeOrders",
+      "namespace": "public"
+    },
     "recharge_records": {
       "model": "RechargeRecords",
       "namespace": "public"
@@ -90,6 +86,14 @@
     },
     "services": {
       "model": "Services",
+      "namespace": "public"
+    },
+    "shop_order_products": {
+      "model": "ShopOrderProducts",
+      "namespace": "public"
+    },
+    "shop_orders": {
+      "model": "ShopOrders",
       "namespace": "public"
     },
     "shops": {
@@ -777,168 +781,6 @@
               "table": "operation_records"
             }
           },
-          "OrderProducts": {
-            "fields": {
-              "amount": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "orderId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "price": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/float8@1",
-                  "kind": "scalar"
-                }
-              },
-              "productId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "stockId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {},
-            "storage": {
-              "fields": {
-                "amount": {
-                  "column": "amount"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "orderId": {
-                  "column": "order_id"
-                },
-                "price": {
-                  "column": "price"
-                },
-                "productId": {
-                  "column": "product_id"
-                },
-                "stockId": {
-                  "column": "stock_id"
-                }
-              },
-              "namespaceId": "public",
-              "table": "order_products"
-            }
-          },
-          "Orders": {
-            "fields": {
-              "addressId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "orderStatus": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "paymentStatus": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "time": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "totalPrice": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/float8@1",
-                  "kind": "scalar"
-                }
-              },
-              "trackingNumber": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "userId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {},
-            "storage": {
-              "fields": {
-                "addressId": {
-                  "column": "address_id"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "orderStatus": {
-                  "column": "order_status"
-                },
-                "paymentStatus": {
-                  "column": "payment_status"
-                },
-                "time": {
-                  "column": "time"
-                },
-                "totalPrice": {
-                  "column": "total_price"
-                },
-                "trackingNumber": {
-                  "column": "tracking_number"
-                },
-                "userId": {
-                  "column": "user_id"
-                }
-              },
-              "namespaceId": "public",
-              "table": "orders"
-            }
-          },
           "Payments": {
             "fields": {
               "amount": {
@@ -976,7 +818,7 @@
                   "kind": "scalar"
                 }
               },
-              "orderId": {
+              "paymentType": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int4@1",
@@ -987,6 +829,20 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechargeOrderId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "shopOrderId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -1037,11 +893,17 @@
                 "id": {
                   "column": "id"
                 },
-                "orderId": {
-                  "column": "order_id"
+                "paymentType": {
+                  "column": "payment_type"
                 },
                 "provider": {
                   "column": "provider"
+                },
+                "rechargeOrderId": {
+                  "column": "recharge_order_id"
+                },
+                "shopOrderId": {
+                  "column": "shop_order_id"
                 },
                 "status": {
                   "column": "status"
@@ -1703,6 +1565,87 @@
               "table": "recharge_bonuses"
             }
           },
+          "RechargeOrders": {
+            "fields": {
+              "amount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "bonusId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "paymentStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechargeAmount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "transactionId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "amount": {
+                  "column": "amount"
+                },
+                "bonusId": {
+                  "column": "bonus_id"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "paymentStatus": {
+                  "column": "payment_status"
+                },
+                "rechargeAmount": {
+                  "column": "recharge_amount"
+                },
+                "transactionId": {
+                  "column": "transaction_id"
+                },
+                "userId": {
+                  "column": "user_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "recharge_orders"
+            }
+          },
           "RechargeRecords": {
             "fields": {
               "balanceAfter": {
@@ -1956,6 +1899,168 @@
               },
               "namespaceId": "public",
               "table": "services"
+            }
+          },
+          "ShopOrderProducts": {
+            "fields": {
+              "amount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "orderId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "price": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "productId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "stockId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "amount": {
+                  "column": "amount"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "orderId": {
+                  "column": "order_id"
+                },
+                "price": {
+                  "column": "price"
+                },
+                "productId": {
+                  "column": "product_id"
+                },
+                "stockId": {
+                  "column": "stock_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "shop_order_products"
+            }
+          },
+          "ShopOrders": {
+            "fields": {
+              "addressId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "orderStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "paymentStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "time": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "totalPrice": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "trackingNumber": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "addressId": {
+                  "column": "address_id"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "orderStatus": {
+                  "column": "order_status"
+                },
+                "paymentStatus": {
+                  "column": "payment_status"
+                },
+                "time": {
+                  "column": "time"
+                },
+                "totalPrice": {
+                  "column": "total_price"
+                },
+                "trackingNumber": {
+                  "column": "tracking_number"
+                },
+                "userId": {
+                  "column": "user_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "shop_orders"
             }
           },
           "Shops": {
@@ -2888,122 +2993,6 @@
               },
               "uniques": []
             },
-            "order_products": {
-              "columns": {
-                "amount": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "expression": "autoincrement()",
-                    "kind": "function"
-                  },
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "order_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "price": {
-                  "codecId": "pg/float8@1",
-                  "nativeType": "float8",
-                  "nullable": false
-                },
-                "product_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "stock_id": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": 0
-                  },
-                  "nativeType": "int4",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [],
-              "indexes": [],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ],
-                "name": "order_products_pkey"
-              },
-              "uniques": []
-            },
-            "orders": {
-              "columns": {
-                "address_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "expression": "autoincrement()",
-                    "kind": "function"
-                  },
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "order_status": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": 0
-                  },
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "payment_status": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "kind": "literal",
-                    "value": 0
-                  },
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "time": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false
-                },
-                "total_price": {
-                  "codecId": "pg/float8@1",
-                  "nativeType": "float8",
-                  "nullable": false
-                },
-                "tracking_number": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
-                },
-                "user_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [],
-              "indexes": [],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ],
-                "name": "orders_pkey"
-              },
-              "uniques": []
-            },
             "payments": {
               "columns": {
                 "amount": {
@@ -3043,8 +3032,12 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
-                "order_id": {
+                "payment_type": {
                   "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
                   "nativeType": "int4",
                   "nullable": false
                 },
@@ -3056,6 +3049,16 @@
                   },
                   "nativeType": "text",
                   "nullable": false
+                },
+                "recharge_order_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "shop_order_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
                 },
                 "status": {
                   "codecId": "pg/int4@1",
@@ -3090,10 +3093,17 @@
               "indexes": [
                 {
                   "columns": [
-                    "order_id"
+                    "shop_order_id"
                   ],
                   "name": "payments_order_id_idx_39ad19ad",
-                  "prefix": "payments_order_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "recharge_order_id"
+                  ],
+                  "name": "payments_recharge_order_id_idx_d0e968ea",
+                  "prefix": "payments_recharge_order_id_idx",
                   "unique": false
                 },
                 {
@@ -3115,12 +3125,14 @@
                 {
                   "columns": [
                     "stripe_checkout_session_id"
-                  ]
+                  ],
+                  "name": "payments_stripe_checkout_session_id_key"
                 },
                 {
                   "columns": [
                     "stripe_payment_intent_id"
-                  ]
+                  ],
+                  "name": "payments_stripe_payment_intent_id_key"
                 }
               ]
             },
@@ -3544,6 +3556,69 @@
               },
               "uniques": []
             },
+            "recharge_orders": {
+              "columns": {
+                "amount": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "bonus_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "payment_status": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "recharge_amount": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "transaction_id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "user_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ],
+                "name": "recharge_orders_pkey"
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "transaction_id"
+                  ],
+                  "name": "recharge_orders_transaction_id_key"
+                }
+              ]
+            },
             "recharge_records": {
               "columns": {
                 "balance_after": {
@@ -3705,6 +3780,122 @@
                   "id"
                 ],
                 "name": "services_pkey"
+              },
+              "uniques": []
+            },
+            "shop_order_products": {
+              "columns": {
+                "amount": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "order_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "price": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "product_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "stock_id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ],
+                "name": "order_products_pkey"
+              },
+              "uniques": []
+            },
+            "shop_orders": {
+              "columns": {
+                "address_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "order_status": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "payment_status": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "time": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "total_price": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "tracking_number": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "user_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ],
+                "name": "orders_pkey"
               },
               "uniques": []
             },
@@ -3924,6 +4115,7 @@
               },
               "foreignKeys": [
                 {
+                  "name": "user_addresses_address_id_fkey",
                   "source": {
                     "columns": [
                       "address_id"
@@ -4059,7 +4251,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1369fc62ba8bb474a0aa2975d27e6d92fecf1343bf46813f9f520a168f7bb82a"
+    "storageHash": "682ca4c121e47bb09a0f7ff5ee8d1df5dac57a81bb28431d81876aaff4da83d5"
   },
   "capabilities": {
     "postgres": {

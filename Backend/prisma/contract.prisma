@@ -1,18 +1,16 @@
 // use prisma-next
 // Contract inferred from the live database schema. Edit as needed, then run `prisma contract emit`.
-
 model Addresses {
-  id        Int    @id(map: "addresses_pkey") @default(autoincrement())
-  province  String
-  city      String
-  details   String
-  mobile    String
-  postcode  String
-  contact   String
-  email     String
-  longitude String
-  latitude  String
-
+  id            Int             @id(map: "addresses_pkey") @default(autoincrement())
+  province      String
+  city          String
+  details       String
+  mobile        String
+  postcode      String
+  contact       String
+  email         String
+  longitude     String
+  latitude      String
   userAddresses UserAddresses[]
 
   @@map("addresses")
@@ -99,7 +97,7 @@ model Groomers {
   description String
   avatar      String
   price       Float
-  shop        Shops  @relation(fields: [shopId], references: [id], map: "fk_groomers_shop", index: false)
+  shop        Shops  @relation(fields:[shopId], references:[id], map: "fk_groomers_shop", index: false)
 
   @@map("groomers")
 }
@@ -114,46 +112,24 @@ model OperationRecords {
   @@map("operation_records")
 }
 
-model OrderProducts {
-  id        Int   @id(map: "order_products_pkey") @default(autoincrement())
-  orderId   Int   @map("order_id")
-  productId Int   @map("product_id")
-  amount    Int
-  price     Float
-  stockId   Int   @default(0) @map("stock_id")
-
-  @@map("order_products")
-}
-
-model Orders {
-  id             Int     @id(map: "orders_pkey") @default(autoincrement())
-  userId         Int     @map("user_id")
-  addressId      Int     @map("address_id")
-  time           String
-  totalPrice     Float   @map("total_price")
-  paymentStatus  Int     @default(0) @map("payment_status")
-  orderStatus    Int     @default(0) @map("order_status")
-  trackingNumber String? @map("tracking_number")
-
-  @@map("orders")
-}
-
 model Payments {
-  id                      Int      @id(map: "payments_pkey") @default(autoincrement())
-  orderId                 Int      @map("order_id")
-  provider                String   @default('STRIPE')
-  status                  Int      @default(0)
+  id                      Int         @id(map: "payments_pkey") @default(autoincrement())
   amount                  Float
-  currency                String   @default("nzd")
-  stripeCheckoutSessionId String?  @unique @map("stripe_checkout_session_id")
-  stripePaymentIntentId   String?  @unique @map("stripe_payment_intent_id")
-  failureMessage          String?  @map("failure_message")
-  createdAt               DateTime @default(now()) @map("created_at")
-  updatedAt               DateTime @default(now()) @map("updated_at")
+  createdAt               Timestamptz @default(now()) @map("created_at")
+  currency                String      @default("nzd")
+  failureMessage          String?     @map("failure_message")
+  shopOrderId             Int?        @map("shop_order_id")
+  provider                String      @default("STRIPE")
+  status                  Int         @default(0)
+  stripeCheckoutSessionId String?     @unique(map: "payments_stripe_checkout_session_id_key") @map("stripe_checkout_session_id")
+  stripePaymentIntentId   String?     @unique(map: "payments_stripe_payment_intent_id_key") @map("stripe_payment_intent_id")
+  updatedAt               Timestamptz @default(now()) @map("updated_at")
+  paymentType             Int         @default(0) @map("payment_type")
+  rechargeOrderId         Int?        @map("recharge_order_id")
 
-  @@index([orderId])
-  @@index([status])
-  
+  @@index([shopOrderId], map: "payments_order_id_idx_39ad19ad")
+  @@index([rechargeOrderId], name: "payments_recharge_order_id_idx")
+  @@index([status], name: "payments_status_idx")
   @@map("payments")
 }
 
@@ -197,7 +173,7 @@ model PetWeights {
   weight        Float
   recordDate    String @map("record_date")
   appointmentId Int    @map("appointment_id")
-  pet           Pets   @relation(fields: [petId], references: [id], map: "fk_pet_weights_pet", index: false)
+  pet           Pets   @relation(fields:[petId], references:[id], map: "fk_pet_weights_pet", index: false)
 
   @@map("pet_weights")
 }
@@ -220,7 +196,7 @@ model ProductImages {
   productId Int      @map("product_id")
   url       String
   sortOrder Int      @map("sort_order")
-  product   Products @relation(fields: [productId], references: [id], map: "fk_product_images_product", index: false)
+  product   Products @relation(fields:[productId], references:[id], map: "fk_product_images_product", index: false)
 
   @@map("product_images")
 }
@@ -233,7 +209,7 @@ model ProductStocks {
   stock     Int
   price     Float
   discount  Float
-  product   Products @relation(fields: [productId], references: [id], map: "fk_product_stocks_product", index: false)
+  product   Products @relation(fields:[productId], references:[id], map: "fk_product_stocks_product", index: false)
 
   @@map("product_stocks")
 }
@@ -247,6 +223,18 @@ model RechargeBonuses {
   sortOrder        Int    @map("sort_order")
 
   @@map("recharge_bonuses")
+}
+
+model RechargeOrders {
+  id             Int     @id(map: "recharge_orders_pkey") @default(autoincrement())
+  amount         Float
+  bonusId        Int     @map("bonus_id")
+  paymentStatus  Int     @default(0) @map("payment_status")
+  rechargeAmount Float   @map("recharge_amount")
+  userId         Int     @map("user_id")
+  transactionId  String? @unique(map: "recharge_orders_transaction_id_key") @map("transaction_id")
+
+  @@map("recharge_orders")
 }
 
 model RechargeRecords {
@@ -280,9 +268,33 @@ model ServicePrices {
   price      Float
   weightFrom Int      @map("weight_from")
   weightTo   Int      @map("weight_to")
-  service    Services @relation(fields: [serviceId], references: [id], map: "fk_service_prices_service", index: false)
+  service    Services @relation(fields:[serviceId], references:[id], map: "fk_service_prices_service", index: false)
 
   @@map("service_prices")
+}
+
+model ShopOrderProducts {
+  id        Int   @id(map: "order_products_pkey") @default(autoincrement())
+  orderId   Int   @map("order_id")
+  productId Int   @map("product_id")
+  amount    Int
+  price     Float
+  stockId   Int   @default(0) @map("stock_id")
+
+  @@map("shop_order_products")
+}
+
+model ShopOrders {
+  id             Int     @id(map: "orders_pkey") @default(autoincrement())
+  userId         Int     @map("user_id")
+  addressId      Int     @map("address_id")
+  time           String
+  totalPrice     Float   @map("total_price")
+  paymentStatus  Int     @default(0) @map("payment_status")
+  orderStatus    Int     @default(0) @map("order_status")
+  trackingNumber String? @map("tracking_number")
+
+  @@map("shop_orders")
 }
 
 model SpendRecords {
@@ -310,13 +322,13 @@ model StockRecords {
 }
 
 model UserAddresses {
-  id        Int @id(map: "user_addresses_pkey") @default(autoincrement())
-  userId    Int @default(0) @map("user_id")
-  addressId Int @default(0) @map("address_id")
-  isDefault Int @default(0) @map("is_default")
+  id        Int       @id(map: "user_addresses_pkey") @default(autoincrement())
+  userId    Int       @default(0) @map("user_id")
+  addressId Int       @default(0) @map("address_id")
+  isDefault Int       @default(0) @map("is_default")
+  address   Addresses @relation(fields:[addressId], references:[id], map: "user_addresses_address_id_fkey")
 
-  address Addresses @relation(fields: [addressId], references: [id])
-
+  @@index([addressId], name: "user_addresses_address_id_idx")
   @@map("user_addresses")
 }
 

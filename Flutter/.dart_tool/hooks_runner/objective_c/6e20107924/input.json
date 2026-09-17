@@ -22,8 +22,8 @@
     },
     "linking_enabled": false
   },
-  "out_dir_shared": "/Users/chandler/Documents/Waikato/MInfoTech/26B/COMPX576/Project/Flutter/.dart_tool/hooks_runner/shared/objective_c/build/",
-  "out_file": "/Users/chandler/Documents/Waikato/MInfoTech/26B/COMPX576/Project/Flutter/.dart_tool/hooks_runner/objective_c/6e20107924/output.json",
+  "out_dir_shared": "/Users/chandler/Documents/GitHub/YiPetHome/Flutter/.dart_tool/hooks_runner/shared/objective_c/build/",
+  "out_file": "/Users/chandler/Documents/GitHub/YiPetHome/Flutter/.dart_tool/hooks_runner/objective_c/6e20107924/output.json",
   "package_name": "objective_c",
   "package_root": "/Users/chandler/.pub-cache/hosted/pub.dev/objective_c-9.6.0/",
   "user_defines": {}

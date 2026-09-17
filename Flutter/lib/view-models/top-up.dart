@@ -1,4 +1,5 @@
 // lib/view-models/top-up.dart
+import 'package:flutter/material.dart';
 
 import '../models/user/bonus-model.dart';
 
@@ -50,4 +51,12 @@ class TopUpData {
       badgeType: badgeType,
     );
   }
+}
+
+class TopUpColor {
+  static const Color primary = Color(0xFF15952A);
+  static const Color textPrimary = Color(0xFF172038);
+  static const Color textSecondary = Color(0xFF667087);
+  static const Color border = Color(0xFFE6EAE6);
+  static const Color background = Color(0xFFFCFDFB);
 }

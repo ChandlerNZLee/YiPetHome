@@ -11,6 +11,7 @@ import '../../view-models/payment-result.dart';
 
 class PaymentResultPage extends ConsumerStatefulWidget {
   final double amount;
+  final int bonus;
   final PaymentMethodType paymentMethod;
   final PaymentSummaryType type;
   final VoidCallback? onBottomPressed;
@@ -18,6 +19,7 @@ class PaymentResultPage extends ConsumerStatefulWidget {
   const PaymentResultPage({
     super.key,
     required this.amount,
+    required this.bonus,
     required this.paymentMethod,
     required this.type,
     this.onBottomPressed,
@@ -65,10 +67,10 @@ class _PaymentResultPageState extends ConsumerState<PaymentResultPage> {
 
   Widget get _getPaymentInfoCard {
     if (widget.type == PaymentSummaryType.topup) {
-      return const TopUpResultAmountCard(
-        topUpAmount: 1000.00,
-        bonus: 520.00,
-        newWalletBalance: 1520.00,
+      return TopUpResultAmountCard(
+        topUpAmount: widget.amount,
+        bonus: widget.bonus.toDouble(),
+        newWalletBalance: widget.amount + widget.bonus.toDouble(),
       );
     }
 
@@ -119,9 +121,9 @@ class _PaymentResultPageState extends ConsumerState<PaymentResultPage> {
         );
       case PaymentSummaryType.topup:
         return TopUpPaymentResultSummary(
-          topUpAmount: 1000.00,
-          bonus: 520.00,
-          newWalletBalance: 1520.00,
+          topUpAmount: widget.amount,
+          bonus: widget.bonus.toDouble(),
+          newWalletBalance: widget.amount + widget.bonus.toDouble(),
           paymentMethod: PaymentMethodType.online,
           transactionId: 'TP20240516153045',
           dateTime: 'May 16, 2024 3:30 PM',
@@ -396,7 +398,8 @@ class _PaymentMethodDisplay extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (paymentMethod == PaymentMethodType.online) const _VisaLogo(),
+        if (paymentMethod == PaymentMethodType.online)
+          const _OnlinePaymentLogo(),
 
         if (paymentMethod == PaymentMethodType.wallet)
           const Icon(
@@ -419,18 +422,28 @@ class _PaymentMethodDisplay extends StatelessWidget {
   }
 }
 
-class _VisaLogo extends StatelessWidget {
-  const _VisaLogo();
+class _OnlinePaymentLogo extends StatelessWidget {
+  const _OnlinePaymentLogo({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      'VISA',
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w900,
-        fontStyle: FontStyle.italic,
-        color: Color(0xFF1739A1),
+    return Container(
+      width: 66,
+      height: 44,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFBFCFB),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFF0F1F2)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Image.asset(
+          'assets/images/payment/online-payment.png',
+          width: 56,
+          height: 34,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

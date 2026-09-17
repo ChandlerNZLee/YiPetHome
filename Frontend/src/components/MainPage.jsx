@@ -165,7 +165,7 @@ const configs = {
         ],
     },
     9: {
-        endpoint: "/orders",
+        endpoint: "/shop-orders",
         empty: "No Order Data Currently",
         operations: ["Edit", "Next Step"],
         columns: [
@@ -239,7 +239,7 @@ function MainPage({ username, userrole, onLogout }) {
     const isAllSelected = currentList.length > 0 && currentList.every((item) => selectedIds.includes(item.id));
 
     const loadDashboard = async () => {
-        const endpoints = ["/users", "/pets", "/appointments", "/orders"];
+        const endpoints = ["/users", "/pets", "/appointments", "/shop-orders"];
         const results = await Promise.allSettled(endpoints.map((endpoint) => axios.get(`${API_URL}${endpoint}`)));
         const count = (index) => results[index].status === "fulfilled" && Array.isArray(results[index].value.data) ? results[index].value.data.length : 0;
         const orderData = results[3].status === "fulfilled" && Array.isArray(results[3].value.data) ? results[3].value.data : [];
@@ -333,7 +333,7 @@ function MainPage({ username, userrole, onLogout }) {
         if (data.paymentStatus == 1 && (data.orderStatus === 0 || data.orderStatus === 1)) {
             setError("");
             try {
-                const res = await axios.post(`${API_URL}/orders/process/${data.id}`);
+                const res = await axios.post(`${API_URL}/shop-orders/process/${data.id}`);
                 fetchData(activeMenu);
             } catch (err) {
                 console.error(err);

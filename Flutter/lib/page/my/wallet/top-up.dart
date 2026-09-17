@@ -17,12 +17,6 @@ class TopUpPage extends StatefulWidget {
 }
 
 class _TopUpPageState extends State<TopUpPage> {
-  static const Color primary = Color(0xFF15952A);
-  static const Color textPrimary = Color(0xFF172038);
-  static const Color textSecondary = Color(0xFF667087);
-  static const Color border = Color(0xFFE6EAE6);
-  static const Color background = Color(0xFFFCFDFB);
-
   final TextEditingController _customAmountController = TextEditingController();
 
   late TopUpData _selectedBonus;
@@ -97,8 +91,11 @@ class _TopUpPageState extends State<TopUpPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            PaymentPage(type: PaymentSummaryType.topup, amount: amount),
+        builder: (_) => PaymentPage(
+          type: PaymentSummaryType.topup,
+          bonus: _selectedBonus,
+          amount: amount,
+        ),
       ),
     );
   }
@@ -147,7 +144,7 @@ class _TopUpPageState extends State<TopUpPage> {
     final showCustomInput = _selectedBonus.type == TopUpBonusType.custom;
 
     return Scaffold(
-      backgroundColor: background,
+      backgroundColor: TopUpColor.background,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -171,7 +168,7 @@ class _TopUpPageState extends State<TopUpPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: textPrimary,
+                        color: TopUpColor.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -201,7 +198,7 @@ class _TopUpPageState extends State<TopUpPage> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: textPrimary,
+                          color: TopUpColor.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -211,7 +208,10 @@ class _TopUpPageState extends State<TopUpPage> {
                         padding: EdgeInsets.only(left: 4),
                         child: Text(
                           'Minimum top up amount is \$10',
-                          style: TextStyle(fontSize: 12, color: textSecondary),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: TopUpColor.textSecondary,
+                          ),
                         ),
                       ),
                     ],
@@ -223,7 +223,7 @@ class _TopUpPageState extends State<TopUpPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: textPrimary,
+                        color: TopUpColor.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -235,7 +235,7 @@ class _TopUpPageState extends State<TopUpPage> {
                       child: ElevatedButton(
                         onPressed: _processing ? null : _proceedToPayment,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primary,
+                          backgroundColor: TopUpColor.primary,
                           foregroundColor: Colors.white,
                           disabledBackgroundColor: const Color(0xFF8BC894),
                           elevation: 0,
@@ -295,7 +295,7 @@ class _TopUpPageState extends State<TopUpPage> {
                 child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 24,
-                  color: textPrimary,
+                  color: TopUpColor.textPrimary,
                 ),
               ),
             ),
@@ -308,12 +308,12 @@ class _TopUpPageState extends State<TopUpPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: textPrimary,
+                  color: TopUpColor.textPrimary,
                 ),
               ),
               Text(
                 'Add balance to your wallet',
-                style: TextStyle(fontSize: 10, color: textSecondary),
+                style: TextStyle(fontSize: 10, color: TopUpColor.textSecondary),
               ),
             ],
           ),
@@ -328,7 +328,7 @@ class _TopUpPageState extends State<TopUpPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: border),
+        border: Border.all(color: TopUpColor.border),
       ),
       child: Row(
         children: [
@@ -338,11 +338,11 @@ class _TopUpPageState extends State<TopUpPage> {
             alignment: Alignment.center,
             decoration: const BoxDecoration(
               color: Color(0xFFF8F9FA),
-              border: Border(right: BorderSide(color: border)),
+              border: Border(right: BorderSide(color: TopUpColor.border)),
             ),
             child: const Text(
               '\$',
-              style: TextStyle(fontSize: 16, color: textPrimary),
+              style: TextStyle(fontSize: 16, color: TopUpColor.textPrimary),
             ),
           ),
           Expanded(
@@ -352,11 +352,14 @@ class _TopUpPageState extends State<TopUpPage> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              cursorColor: primary,
+              cursorColor: TopUpColor.primary,
               onChanged: (_) {
                 setState(() {});
               },
-              style: const TextStyle(fontSize: 12, color: textPrimary),
+              style: const TextStyle(
+                fontSize: 12,
+                color: TopUpColor.textPrimary,
+              ),
               decoration: const InputDecoration(
                 hintText: 'Enter amount',
                 hintStyle: TextStyle(fontSize: 12, color: Color(0xFF9BA2B1)),
@@ -772,86 +775,31 @@ class PaymentMethodCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(
-                Icons.credit_card_rounded,
-                size: 24,
-                color: Color(0xFF15952A),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Credit / Debit Card',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF172038),
-                  ),
-                ),
-              ),
-              const Text(
-                'VISA',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF1A3BAA),
-                ),
-              ),
-              const SizedBox(width: 6),
-              SizedBox(
-                width: 36,
-                height: 24,
-                child: Stack(
+              OnlinePaymentLogo(),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Positioned(
-                      left: 2,
-                      top: 3,
-                      child: Container(
-                        width: 18,
-                        height: 18,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF44336),
-                          shape: BoxShape.circle,
-                        ),
+                    Text(
+                      'Online Payment',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: TopUpColor.textPrimary,
                       ),
                     ),
-                    Positioned(
-                      top: 3,
-                      right: 2,
-                      child: Container(
-                        width: 18,
-                        height: 18,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFF9800),
-                          shape: BoxShape.circle,
-                        ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Pay securely online',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: TopUpColor.textSecondary,
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF3B7DC4)),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: const Text(
-                  'AMEX',
-                  style: TextStyle(
-                    fontSize: 8,
-                    height: 1,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF2A72B8),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              const Icon(
-                Icons.chevron_right_rounded,
-                size: 24,
-                color: Color(0xFF35405A),
               ),
             ],
           ),
