@@ -35,13 +35,11 @@ export class PaymentsController {
         );
     }
 
-    @Get('checkout/:sessionId')
+    @Get('checkout/:id')
     async getCheckout(
-        @Param('sessionId') sessionId: string,
+        @Param('id') id: string,
     ) {
-        return this.paymentsService.getCheckoutSession(
-            sessionId,
-        );
+        return this.paymentsService.getCheckoutSession(id);
     }
 
     @Post('webhook')
@@ -79,5 +77,16 @@ export class PaymentsController {
         return {
             received: true,
         };
+    }
+
+    @Post('appointments/:id/refund')
+    async refundAppointment(
+        @Param('id') id: string,
+        @Body() body: { userId: number },
+    ) {
+        return this.paymentsService.refundAppointment(
+            Number(id),
+            Number(body.userId),
+        );
     }
 }

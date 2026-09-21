@@ -3,8 +3,8 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-
 import { ConfigService } from '@nestjs/config';
+import { Cron } from '@nestjs/schedule';
 
 import { Temporal } from 'temporal-polyfill';
 
@@ -145,16 +145,107 @@ export class PaymentsService {
                     },
                 },
             ];
+        } else if (orderType === 2) {
+            const appointment =
+                await this.prisma.db.orm.public.Appointments
+                    .where({ id: orderId })
+                    .first();
+
+            if (!appointment) {
+                throw new NotFoundException(
+                    'Appointment not found',
+                );
+            }
+
+            if (appointment.userId !== userId) {
+                throw new BadRequestException(
+                    'This appointment does not belong to the current user',
+                );
+            }
+
+            if (
+                appointment.appointmentStatus !== 0
+            ) {
+                throw new BadRequestException(
+                    'Appointment is not pending payment',
+                );
+            }
+
+            if (
+                appointment.expiresAt &&
+                appointment.expiresAt.epochMilliseconds <= Date.now()
+            ) {
+                throw new BadRequestException(
+                    'Appointment payment has expired',
+                );
+            }
+
+            const succeededPayment =
+                await this.prisma.db.orm.public.Payments
+                    .where({
+                        paymentType: 2,
+                        appointmentId: appointment.id,
+                        status: PAYMENT_STATUS.SUCCEEDED,
+                    })
+                    .first();
+
+            if (succeededPayment) {
+                throw new BadRequestException(
+                    'Appointment has already been paid',
+                );
+            }
+
+            if (
+                appointment.paymentStatus ===
+                PAYMENT_STATUS.SUCCEEDED
+            ) {
+                throw new BadRequestException(
+                    'Appointment has already been paid',
+                );
+            }
+
+            totalPrice = Number(appointment.price);
+
+            lineItems = [
+                {
+                    quantity: 1,
+                    price_data: {
+                        currency:
+                            this.configService.get<string>(
+                                'STRIPE_CURRENCY',
+                            ) ?? 'nzd',
+
+                        unit_amount: Math.round(
+                            totalPrice * 100,
+                        ),
+
+                        product_data: {
+                            name: `Appointment #${appointment.id}`,
+                            metadata: {
+                                appointmentId: String(
+                                    appointment.id,
+                                ),
+                            },
+                        },
+                    },
+                },
+            ];
         } else {
-            throw new BadRequestException('Appointment payment is not implemented yet');
+            throw new BadRequestException(
+                'Unsupported payment type',
+            );
         }
 
         const payment = await this.prisma.db.orm.public.Payments.create({
             paymentType: orderType,
+
             shopOrderId: orderType === 0 ? orderId : null,
             rechargeOrderId: orderType === 1 ? orderId : null,
+            appointmentId: orderType === 2 ? orderId : null,
+
             provider: 'STRIPE',
             amount: totalPrice,
+
             currency:
                 this.configService.get<string>(
                     'STRIPE_CURRENCY',
@@ -235,6 +326,121 @@ export class PaymentsService {
         };
     }
 
+    @Cron('0 * * * * *')
+    async cleanupExpiredAppointmentCheckouts() {
+        await this.expireAppointmentCheckoutSessions();
+    }
+
+    async expireAppointmentCheckoutSessions() {
+        const payments =
+            await this.prisma.db.orm.public.Payments
+                .where({
+                    paymentType: 2,
+                })
+                .all();
+
+        const now = Date.now();
+
+        for (const payment of payments) {
+            // 只有 PENDING / FAILED 需要处理
+            if (
+                payment.status !== PAYMENT_STATUS.PENDING &&
+                payment.status !== PAYMENT_STATUS.FAILED
+            ) {
+                continue;
+            }
+
+            if (
+                !payment.appointmentId ||
+                !payment.stripeCheckoutSessionId
+            ) {
+                continue;
+            }
+
+            const appointment =
+                await this.prisma.db.orm.public.Appointments
+                    .where({
+                        id: payment.appointmentId,
+                    })
+                    .first();
+
+            if (!appointment) {
+                continue;
+            }
+
+            if (
+                appointment.appointmentStatus !== 0
+            ) {
+                continue;
+            }
+
+            if (!appointment.expiresAt) {
+                continue;
+            }
+
+            if (
+                appointment.expiresAt.epochMilliseconds >
+                now
+            ) {
+                continue;
+            }
+
+            try {
+                await this.stripeProvider
+                    .expireCheckoutSession(
+                        payment.stripeCheckoutSessionId,
+                    );
+            } catch (error) {
+                console.error(
+                    `Failed to expire Stripe Checkout Session ${payment.stripeCheckoutSessionId} for Appointment ${appointment.id}`,
+                    error,
+                );
+            }
+        }
+    }
+
+    async expireAppointmentCheckout(
+        appointmentId: number,
+    ) {
+        const payments =
+            await this.prisma.db.orm.public.Payments
+                .where({
+                    paymentType: 2,
+                    appointmentId,
+                })
+                .all();
+
+        const activePayments =
+            payments.filter(
+                (payment) =>
+                    (
+                        payment.status ===
+                        PAYMENT_STATUS.PENDING ||
+                        payment.status ===
+                        PAYMENT_STATUS.FAILED
+                    ) &&
+                    payment.stripeCheckoutSessionId,
+            );
+
+        for (const payment of activePayments) {
+            if (!payment.stripeCheckoutSessionId) {
+                continue;
+            }
+
+            try {
+                await this.stripeProvider
+                    .expireCheckoutSession(
+                        payment.stripeCheckoutSessionId,
+                    );
+            } catch (error) {
+                console.error(
+                    `Failed to expire Stripe Checkout Session ${payment.stripeCheckoutSessionId} for cancelled Appointment ${appointmentId}`,
+                    error,
+                );
+            }
+        }
+    }
+
     async handleWebhook(event: Stripe.Event) {
         switch (event.type) {
             case 'checkout.session.completed':
@@ -293,7 +499,7 @@ export class PaymentsService {
                 orderId,
                 paymentId,
             );
-        } else {
+        } else if (orderType === 2) {
             return this.handleAppointmentPaymentCompleted(
                 session,
                 orderId,
@@ -371,6 +577,7 @@ export class PaymentsService {
                 status: PAYMENT_STATUS.SUCCEEDED,
                 stripeCheckoutSessionId: session.id,
                 stripePaymentIntentId: paymentIntentId,
+                failureMessage: null,
                 updatedAt: Temporal.Now.instant(),
             });
 
@@ -446,6 +653,7 @@ export class PaymentsService {
                 status: PAYMENT_STATUS.SUCCEEDED,
                 stripeCheckoutSessionId: session.id,
                 stripePaymentIntentId: paymentIntentId,
+                failureMessage: null,
                 updatedAt: Temporal.Now.instant(),
             });
 
@@ -468,68 +676,270 @@ export class PaymentsService {
         });
     }
 
-    private async handleAppointmentPaymentCompleted(session: Stripe.Checkout.Session, orderId: number, paymentId: number) {
+    private async handleAppointmentPaymentCompleted(
+        session: Stripe.Checkout.Session,
+        orderId: number,
+        paymentId: number,
+    ) {
+        const paymentIntentId =
+            typeof session.payment_intent === 'string'
+                ? session.payment_intent
+                : session.payment_intent?.id ?? null;
 
+        await this.prisma.db.transaction(async (tx) => {
+            const payment =
+                await tx.orm.public.Payments
+                    .where({ id: paymentId })
+                    .first();
+
+            if (!payment) {
+                throw new NotFoundException(
+                    `Payment ${paymentId} not found`,
+                );
+            }
+
+            if (payment.paymentType !== 2) {
+                throw new BadRequestException(
+                    'Invalid payment type',
+                );
+            }
+
+            if (payment.appointmentId !== orderId) {
+                throw new BadRequestException(
+                    'Payment does not belong to this appointment',
+                );
+            }
+
+            if (
+                payment.status ===
+                PAYMENT_STATUS.SUCCEEDED
+            ) {
+                return;
+            }
+
+            const appointment =
+                await tx.orm.public.Appointments
+                    .where({ id: orderId })
+                    .first();
+
+            if (!appointment) {
+                throw new NotFoundException(
+                    `Appointment ${orderId} not found`,
+                );
+            }
+
+            if (appointment.appointmentStatus !== 0) {
+                throw new BadRequestException(
+                    'Appointment is no longer pending payment',
+                );
+            }
+
+            if (
+                !appointment.expiresAt ||
+                appointment.expiresAt.epochMilliseconds <=
+                Date.now()
+            ) {
+                throw new BadRequestException(
+                    'Appointment has expired',
+                );
+            }
+
+            const appointmentLocks =
+                await tx.orm.public.AppointmentLocks
+                    .where({
+                        appointmentId: appointment.id,
+                    })
+                    .all();
+
+            if (appointmentLocks.length === 0) {
+                throw new BadRequestException(
+                    'Appointment reservation lock no longer exists',
+                );
+            }
+
+            const expectedAmount =
+                Math.round(Number(payment.amount) * 100);
+
+            if (session.amount_total !== expectedAmount) {
+                throw new BadRequestException(
+                    'Stripe payment amount does not match the appointment amount',
+                );
+            }
+
+            if (
+                session.currency?.toLowerCase() !==
+                payment.currency.toLowerCase()
+            ) {
+                throw new BadRequestException(
+                    'Stripe payment currency does not match',
+                );
+            }
+
+            await tx.orm.public.Payments
+                .where({ id: paymentId })
+                .update({
+                    status: PAYMENT_STATUS.SUCCEEDED,
+                    stripeCheckoutSessionId: session.id,
+                    stripePaymentIntentId: paymentIntentId,
+                    failureMessage: null,
+                    updatedAt: Temporal.Now.instant(),
+                });
+
+            await tx.orm.public.Appointments
+                .where({ id: appointment.id })
+                .update({
+                    paymentStatus:
+                        PAYMENT_STATUS.SUCCEEDED,
+
+                    // CONFIRMED
+                    appointmentStatus: 1,
+                });
+        });
     }
 
     private async handleCheckoutExpired(
         session: Stripe.Checkout.Session,
     ) {
-        const paymentId = Number(session.metadata?.paymentId);
+        const paymentId = Number(
+            session.metadata?.paymentId,
+        );
 
         if (!paymentId) {
             return;
         }
 
-        const payment = await this.prisma.db.orm.public.Payments.where({ id: paymentId }).first();
+        await this.prisma.db.transaction(async (tx) => {
+            const payment =
+                await tx.orm.public.Payments
+                    .where({ id: paymentId })
+                    .first();
 
-        if (!payment) {
-            return;
-        }
+            if (!payment) {
+                return;
+            }
 
-        if (payment.status === PAYMENT_STATUS.SUCCEEDED) {
-            return;
-        }
+            if (
+                payment.status ===
+                PAYMENT_STATUS.SUCCEEDED
+            ) {
+                return;
+            }
 
-        await this.prisma.db.orm.public.Payments.where({
-            id: paymentId,
-        }).update({
-            status: ORDER_STATUS.CANCELLED,
-            updatedAt: Temporal.Now.instant(),
+            if (
+                payment.status ===
+                PAYMENT_STATUS.REFUNDED
+            ) {
+                return;
+            }
+
+            await tx.orm.public.Payments
+                .where({ id: payment.id })
+                .update({
+                    status: PAYMENT_STATUS.CANCELLED,
+                    updatedAt: Temporal.Now.instant(),
+                });
+
+            if (payment.paymentType !== 2) {
+                return;
+            }
+
+            if (!payment.appointmentId) {
+                throw new BadRequestException(
+                    'Appointment ID is missing',
+                );
+            }
+
+            const appointment =
+                await tx.orm.public.Appointments
+                    .where({
+                        id: payment.appointmentId,
+                    })
+                    .first();
+
+            if (!appointment) {
+                throw new NotFoundException(
+                    `Appointment ${payment.appointmentId} not found`,
+                );
+            }
+
+            if (appointment.appointmentStatus !== 0) {
+                return;
+            }
+
+            await tx.orm.public.Appointments
+                .where({ id: appointment.id })
+                .update({
+                    appointmentStatus: 4,
+                });
+
+            await tx.orm.public.AppointmentLocks
+                .where({
+                    appointmentId: appointment.id,
+                })
+                .deleteAll();
         });
     }
 
     private async handlePaymentFailed(
         paymentIntent: Stripe.PaymentIntent,
     ) {
-        const paymentId = Number(paymentIntent.metadata?.paymentId);
+        const paymentId = Number(
+            paymentIntent.metadata?.paymentId,
+        );
 
         if (!paymentId) {
             return;
         }
 
-        const payment = await this.prisma.db.orm.public.Payments.where({ id: paymentId }).first();
+        const payment =
+            await this.prisma.db.orm.public.Payments
+                .where({ id: paymentId })
+                .first();
 
         if (!payment) {
-            throw new NotFoundException(`Payment ${paymentId} not found`);
+            throw new NotFoundException(
+                `Payment ${paymentId} not found`,
+            );
         }
 
-        if (payment.status === PAYMENT_STATUS.SUCCEEDED) {
+        if (
+            payment.status ===
+            PAYMENT_STATUS.SUCCEEDED
+        ) {
             return;
         }
 
-        if (payment.status === PAYMENT_STATUS.FAILED) {
+        if (
+            payment.status ===
+            PAYMENT_STATUS.REFUNDED
+        ) {
             return;
         }
 
-        await this.prisma.db.orm.public.Payments.where({ id: paymentId }).update({
-            status: PAYMENT_STATUS.FAILED,
-            stripePaymentIntentId: paymentIntent.id,
-            failureMessage:
-                paymentIntent.last_payment_error
-                    ?.message ?? 'Payment failed',
-            updatedAt: Temporal.Now.instant(),
-        });
+        if (
+            payment.status ===
+            PAYMENT_STATUS.CANCELLED
+        ) {
+            return;
+        }
+
+        await this.prisma.db.orm.public.Payments
+            .where({ id: paymentId })
+            .update({
+                status: PAYMENT_STATUS.FAILED,
+
+                stripePaymentIntentId:
+                    paymentIntent.id,
+
+                failureMessage:
+                    paymentIntent
+                        .last_payment_error
+                        ?.message ??
+                    'Payment failed',
+
+                updatedAt:
+                    Temporal.Now.instant(),
+            });
     }
 
     private async handleChargeRefunded(charge: Stripe.Charge) {
@@ -642,5 +1052,146 @@ export class PaymentsService {
         });
     }
 
-    private async handleAppointmentRefunded(paymentId: number) { }
+    private async handleAppointmentRefunded(
+        paymentId: number,
+    ) {
+        await this.prisma.db.transaction(async (tx) => {
+            const payment =
+                await tx.orm.public.Payments
+                    .where({ id: paymentId })
+                    .first();
+
+            if (!payment) {
+                throw new NotFoundException(
+                    `Payment ${paymentId} not found`,
+                );
+            }
+
+            if (payment.paymentType !== 2) {
+                throw new BadRequestException(
+                    'Invalid payment type',
+                );
+            }
+
+            if (!payment.appointmentId) {
+                throw new BadRequestException(
+                    'Appointment ID is missing',
+                );
+            }
+
+            if (
+                payment.status ===
+                PAYMENT_STATUS.REFUNDED
+            ) {
+                return;
+            }
+
+            const appointment =
+                await tx.orm.public.Appointments
+                    .where({
+                        id: payment.appointmentId,
+                    })
+                    .first();
+
+            if (!appointment) {
+                throw new NotFoundException(
+                    `Appointment ${payment.appointmentId} not found`,
+                );
+            }
+
+            await tx.orm.public.Payments
+                .where({ id: payment.id })
+                .update({
+                    status: PAYMENT_STATUS.REFUNDED,
+                    updatedAt: Temporal.Now.instant(),
+                });
+
+            await tx.orm.public.Appointments
+                .where({ id: appointment.id })
+                .update({
+                    paymentStatus:
+                        PAYMENT_STATUS.REFUNDED,
+
+                    // CANCELLED
+                    appointmentStatus: 3,
+                });
+
+            await tx.orm.public.AppointmentLocks
+                .where({
+                    appointmentId: appointment.id,
+                })
+                .deleteAll();
+        });
+    }
+
+    async refundAppointment(
+        id: number,
+        userId: number,
+    ) {
+        const appointment =
+            await this.prisma.db.orm.public.Appointments
+                .where({ id })
+                .first();
+
+        if (!appointment) {
+            throw new NotFoundException(
+                'Appointment not found',
+            );
+        }
+
+        if (appointment.userId !== userId) {
+            throw new BadRequestException(
+                'This appointment does not belong to the current user',
+            );
+        }
+
+        // 1 = CONFIRMED
+        if (appointment.appointmentStatus !== 1) {
+            throw new BadRequestException(
+                'Only confirmed appointments can be refunded',
+            );
+        }
+
+        if (
+            appointment.paymentStatus !==
+            PAYMENT_STATUS.SUCCEEDED
+        ) {
+            throw new BadRequestException(
+                'Appointment payment has not succeeded',
+            );
+        }
+
+        const payment =
+            await this.prisma.db.orm.public.Payments
+                .where({
+                    paymentType: 2,
+                    appointmentId: id,
+                    status: PAYMENT_STATUS.SUCCEEDED,
+                })
+                .first();
+
+        if (!payment) {
+            throw new NotFoundException(
+                'Succeeded appointment payment not found',
+            );
+        }
+
+        if (!payment.stripePaymentIntentId) {
+            throw new BadRequestException(
+                'Stripe payment intent ID is missing',
+            );
+        }
+
+        const refund =
+            await this.stripeProvider.createRefund(
+                payment.stripePaymentIntentId,
+            );
+
+        return {
+            id,
+            paymentId: payment.id,
+            refundId: refund.id,
+            refundStatus: refund.status,
+        };
+    }
 }

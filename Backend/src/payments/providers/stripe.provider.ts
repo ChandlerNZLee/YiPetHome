@@ -23,6 +23,22 @@ export class StripeProvider {
         return this.client.checkout.sessions.retrieve(sessionId);
     }
 
+    expireCheckoutSession(
+        sessionId: string,
+    ) {
+        return this.client.checkout.sessions.expire(
+            sessionId,
+        );
+    }
+
+    async createRefund(
+        paymentIntentId: string,
+    ) {
+        return this.client.refunds.create({
+            payment_intent: paymentIntentId,
+        });
+    }
+
     constructWebhookEvent(
         payload: Buffer,
         signature: string,

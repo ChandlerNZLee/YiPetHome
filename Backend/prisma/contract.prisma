@@ -16,36 +16,56 @@ model Addresses {
   @@map("addresses")
 }
 
+model AppointmentLocks {
+  appointmentId Int         @map("appointment_id")
+  groomerId     Int         @map("groomer_id")
+  slotStart     Timestamptz @map("slot_start")
+
+  @@id([groomerId, slotStart], map: "appointment_locks_pkey")
+  @@index([appointmentId], name: "appointment_locks_appointment_id_idx")
+  @@map("appointment_locks")
+}
+
 model AppointmentServices {
   id            Int @id(map: "appointment_services_pkey") @default(autoincrement())
   appointmentId Int @map("appointment_id")
   serviceId     Int @map("service_id")
 
+  price         Float
+  duration      Int
+
+  @@index([appointmentId], name: "appointment_services_appointment_id_idx")
+  @@index([serviceId], name: "appointment_services_service_id_idx")
   @@map("appointment_services")
 }
 
-model AppointmentSlots {
-  id            Int @id(map: "appointment_slots_pkey") @default(autoincrement())
-  appointmentId Int @map("appointment_id")
-  slotId        Int @map("slot_id")
-
-  @@map("appointment_slots")
-}
-
 model Appointments {
-  id                Int    @id(map: "appointments_pkey") @default(autoincrement())
-  _type             Int    @map("type")
-  userId            Int    @map("user_id")
-  petId             Int    @map("pet_id")
-  shopId            Int    @map("shop_id")
-  groomerId         Int    @map("groomer_id")
-  originPrice       Float  @map("origin_price")
-  discount          Float
-  price             Float
-  paymentStatus     Int    @map("payment_status")
-  appointmentStatus Int    @map("appointment_status")
-  notes             String
+  id                Int          @id(map: "appointments_pkey") @default(autoincrement())
+  _type             Int          @map("type")
+  userId            Int          @map("user_id")
+  petId             Int          @map("pet_id")
+  shopId            Int          @map("shop_id")
+  groomerId         Int          @map("groomer_id")
 
+  startAt           Timestamptz  @map("start_at")
+  endAt             Timestamptz  @map("end_at")
+  blockingEndAt     Timestamptz  @map("blocking_end_at")
+  expiresAt         Timestamptz? @map("expires_at")
+
+  originPrice       Float        @map("origin_price")
+  discount          Float        @default(0)
+  price             Float
+
+  paymentStatus     Int          @map("payment_status")
+  appointmentStatus Int          @map("appointment_status")
+  notes             String       @default("")
+
+  createdAt         Timestamptz  @default(now()) @map("created_at")
+  updatedAt         Timestamptz  @default(now()) @map("updated_at")
+
+  @@index([groomerId, startAt], name: "appointments_groomer_start_at_idx")
+  @@index([userId], name: "appointments_user_id_idx")
+  @@index([shopId, startAt], name: "appointments_shop_start_at_idx")
   @@map("appointments")
 }
 
@@ -63,28 +83,16 @@ model Banners {
 }
 
 model GroomerSlots {
-  id        Int    @id(map: "room_slots_pkey") @default(autoincrement())
-  groomerId Int    @map("groomer_id")
-  startTime String @map("start_time")
-  endTime   String @map("end_time")
+  id        Int     @id(map: "room_slots_pkey") @default(autoincrement())
+  groomerId Int     @map("groomer_id")
 
+  weekday   Int?
+  startTime String  @map("start_time")
+  endTime   String  @map("end_time")
+  enabled   Boolean @default(true)
+
+  @@index([groomerId, weekday])
   @@map("groomer_slots")
-}
-
-model Shops {
-  id          Int        @id(map: "shops_pkey") @default(autoincrement())
-  name        String
-  address     String
-  longitude   String
-  latitude    String
-  contact     String
-  openingTime String     @map("opening_time")
-  closingTime String     @map("closing_time")
-  description String
-  image       String     @default("")
-  groomers    Groomers[]
-
-  @@map("shops")
 }
 
 model Groomers {
@@ -118,17 +126,23 @@ model Payments {
   createdAt               Timestamptz @default(now()) @map("created_at")
   currency                String      @default("nzd")
   failureMessage          String?     @map("failure_message")
+
+  paymentType             Int         @default(0) @map("payment_type")
   shopOrderId             Int?        @map("shop_order_id")
+  rechargeOrderId         Int?        @map("recharge_order_id")
+  appointmentId           Int?        @map("appointment_id")
+
   provider                String      @default("STRIPE")
   status                  Int         @default(0)
+
   stripeCheckoutSessionId String?     @unique(map: "payments_stripe_checkout_session_id_key") @map("stripe_checkout_session_id")
   stripePaymentIntentId   String?     @unique(map: "payments_stripe_payment_intent_id_key") @map("stripe_payment_intent_id")
+
   updatedAt               Timestamptz @default(now()) @map("updated_at")
-  paymentType             Int         @default(0) @map("payment_type")
-  rechargeOrderId         Int?        @map("recharge_order_id")
 
   @@index([shopOrderId], map: "payments_order_id_idx_39ad19ad")
   @@index([rechargeOrderId], name: "payments_recharge_order_id_idx")
+  @@index([appointmentId], name: "payments_appointment_id_idx")
   @@index([status], name: "payments_status_idx")
   @@map("payments")
 }
@@ -295,6 +309,22 @@ model ShopOrders {
   trackingNumber String? @map("tracking_number")
 
   @@map("shop_orders")
+}
+
+model Shops {
+  id          Int        @id(map: "shops_pkey") @default(autoincrement())
+  name        String
+  address     String
+  longitude   String
+  latitude    String
+  contact     String
+  openingTime String     @map("opening_time")
+  closingTime String     @map("closing_time")
+  description String
+  image       String     @default("")
+  groomers    Groomers[]
+
+  @@map("shops")
 }
 
 model SpendRecords {

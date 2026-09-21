@@ -257,11 +257,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
         return AppointmentGroomerContent(
           selectedShopId: _selectedShop?.id ?? 0,
           shops: _shops,
-          onShopChanged: (shop) {
-            setState(() {
-              _selectedShop = shop;
-            });
-          },
+          onShopChanged: (shop) => _onShopChanged(shop),
           selectedGroomerId: _selectedGroomer?.id,
           groomers: _groomers,
           onGroomerChanged: (groomer) {
@@ -424,10 +420,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
           .map((item) => GroomerData.fromModel(item))
           .toList();
 
-      final shop = list[0];
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setInt('shop_id', shop.id);
-
       setState(() {
         _groomers = list;
       });
@@ -469,6 +461,21 @@ class _AppointmentPageState extends State<AppointmentPage> {
     } catch (_) {
       return false;
     }
+  }
+
+  Future<void> _onShopChanged(ShopData shop) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('shop_id', shop.id);
+
+    setState(() {
+      _selectedShop = shop;
+      _selectedGroomer = null;
+      _groomers = [];
+      _selectedDate = null;
+      _selectedTime = null;
+    });
+
+    await _getGroomerList();
   }
 
   @override

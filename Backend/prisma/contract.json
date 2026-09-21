@@ -8,12 +8,12 @@
       "model": "Addresses",
       "namespace": "public"
     },
-    "appointment_services": {
-      "model": "AppointmentServices",
+    "appointment_locks": {
+      "model": "AppointmentLocks",
       "namespace": "public"
     },
-    "appointment_slots": {
-      "model": "AppointmentSlots",
+    "appointment_services": {
+      "model": "AppointmentServices",
       "namespace": "public"
     },
     "appointments": {
@@ -248,9 +248,57 @@
               "table": "addresses"
             }
           },
+          "AppointmentLocks": {
+            "fields": {
+              "appointmentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "groomerId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "slotStart": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "appointmentId": {
+                  "column": "appointment_id"
+                },
+                "groomerId": {
+                  "column": "groomer_id"
+                },
+                "slotStart": {
+                  "column": "slot_start"
+                }
+              },
+              "namespaceId": "public",
+              "table": "appointment_locks"
+            }
+          },
           "AppointmentServices": {
             "fields": {
               "appointmentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "duration": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int4@1",
@@ -261,6 +309,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "price": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
                   "kind": "scalar"
                 }
               },
@@ -278,8 +333,14 @@
                 "appointmentId": {
                   "column": "appointment_id"
                 },
+                "duration": {
+                  "column": "duration"
+                },
                 "id": {
                   "column": "id"
+                },
+                "price": {
+                  "column": "price"
                 },
                 "serviceId": {
                   "column": "service_id"
@@ -287,47 +348,6 @@
               },
               "namespaceId": "public",
               "table": "appointment_services"
-            }
-          },
-          "AppointmentSlots": {
-            "fields": {
-              "appointmentId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
-              "slotId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {},
-            "storage": {
-              "fields": {
-                "appointmentId": {
-                  "column": "appointment_id"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "slotId": {
-                  "column": "slot_id"
-                }
-              },
-              "namespaceId": "public",
-              "table": "appointment_slots"
             }
           },
           "Appointments": {
@@ -346,10 +366,38 @@
                   "kind": "scalar"
                 }
               },
+              "blockingEndAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
               "discount": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "endAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiresAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
                   "kind": "scalar"
                 }
               },
@@ -409,6 +457,20 @@
                   "kind": "scalar"
                 }
               },
+              "startAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
               "userId": {
                 "nullable": false,
                 "type": {
@@ -426,8 +488,20 @@
                 "appointmentStatus": {
                   "column": "appointment_status"
                 },
+                "blockingEndAt": {
+                  "column": "blocking_end_at"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
                 "discount": {
                   "column": "discount"
+                },
+                "endAt": {
+                  "column": "end_at"
+                },
+                "expiresAt": {
+                  "column": "expires_at"
                 },
                 "groomerId": {
                   "column": "groomer_id"
@@ -452,6 +526,12 @@
                 },
                 "shopId": {
                   "column": "shop_id"
+                },
+                "startAt": {
+                  "column": "start_at"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
                 },
                 "userId": {
                   "column": "user_id"
@@ -554,6 +634,13 @@
           },
           "GroomerSlots": {
             "fields": {
+              "enabled": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "endTime": {
                 "nullable": false,
                 "type": {
@@ -581,11 +668,21 @@
                   "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
+              },
+              "weekday": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {},
             "storage": {
               "fields": {
+                "enabled": {
+                  "column": "enabled"
+                },
                 "endTime": {
                   "column": "end_time"
                 },
@@ -597,6 +694,9 @@
                 },
                 "startTime": {
                   "column": "start_time"
+                },
+                "weekday": {
+                  "column": "weekday"
                 }
               },
               "namespaceId": "public",
@@ -790,6 +890,13 @@
                   "kind": "scalar"
                 }
               },
+              "appointmentId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -880,6 +987,9 @@
               "fields": {
                 "amount": {
                   "column": "amount"
+                },
+                "appointmentId": {
+                  "column": "appointment_id"
                 },
                 "createdAt": {
                   "column": "created_at"
@@ -2636,9 +2746,52 @@
               },
               "uniques": []
             },
+            "appointment_locks": {
+              "columns": {
+                "appointment_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "groomer_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "slot_start": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "appointment_id"
+                  ],
+                  "name": "appointment_locks_appointment_id_idx_5a77e0f0",
+                  "prefix": "appointment_locks_appointment_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "groomer_id",
+                  "slot_start"
+                ],
+                "name": "appointment_locks_pkey"
+              },
+              "uniques": []
+            },
             "appointment_services": {
               "columns": {
                 "appointment_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "duration": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
                   "nullable": false
@@ -2650,6 +2803,11 @@
                     "kind": "function"
                   },
                   "nativeType": "int4",
+                  "nullable": false
+                },
+                "price": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
                   "nullable": false
                 },
                 "service_id": {
@@ -2659,44 +2817,29 @@
                 }
               },
               "foreignKeys": [],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "appointment_id"
+                  ],
+                  "name": "appointment_services_appointment_id_idx_5a77e0f0",
+                  "prefix": "appointment_services_appointment_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "service_id"
+                  ],
+                  "name": "appointment_services_service_id_idx_cd05e196",
+                  "prefix": "appointment_services_service_id_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
                 ],
                 "name": "appointment_services_pkey"
-              },
-              "uniques": []
-            },
-            "appointment_slots": {
-              "columns": {
-                "appointment_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "expression": "autoincrement()",
-                    "kind": "function"
-                  },
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "slot_id": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [],
-              "indexes": [],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ],
-                "name": "appointment_slots_pkey"
               },
               "uniques": []
             },
@@ -2707,10 +2850,38 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
+                "blocking_end_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "created_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
                 "discount": {
                   "codecId": "pg/float8@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
                   "nativeType": "float8",
                   "nullable": false
+                },
+                "end_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "expires_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
                 },
                 "groomer_id": {
                   "codecId": "pg/int4@1",
@@ -2728,6 +2899,10 @@
                 },
                 "notes": {
                   "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": ""
+                  },
                   "nativeType": "text",
                   "nullable": false
                 },
@@ -2756,9 +2931,23 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
+                "start_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
                 "type": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
+                  "nullable": false
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
                   "nullable": false
                 },
                 "user_id": {
@@ -2768,7 +2957,34 @@
                 }
               },
               "foreignKeys": [],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "groomer_id",
+                    "start_at"
+                  ],
+                  "name": "appointments_groomer_start_at_idx_28779fd1",
+                  "prefix": "appointments_groomer_start_at_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "shop_id",
+                    "start_at"
+                  ],
+                  "name": "appointments_shop_start_at_idx_b2a93cb5",
+                  "prefix": "appointments_shop_start_at_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "user_id"
+                  ],
+                  "name": "appointments_user_id_idx_6c952402",
+                  "prefix": "appointments_user_id_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
@@ -2836,6 +3052,15 @@
             },
             "groomer_slots": {
               "columns": {
+                "enabled": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "end_time": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -2859,10 +3084,25 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "weekday": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "groomer_id",
+                    "weekday"
+                  ],
+                  "name": "groomer_slots_groomer_id_weekday_idx_d7c75e87",
+                  "prefix": "groomer_slots_groomer_id_weekday_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
@@ -3000,6 +3240,11 @@
                   "nativeType": "float8",
                   "nullable": false
                 },
+                "appointment_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "created_at": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "default": {
@@ -3091,6 +3336,14 @@
               },
               "foreignKeys": [],
               "indexes": [
+                {
+                  "columns": [
+                    "appointment_id"
+                  ],
+                  "name": "payments_appointment_id_idx_5a77e0f0",
+                  "prefix": "payments_appointment_id_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "shop_order_id"
@@ -4251,7 +4504,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "682ca4c121e47bb09a0f7ff5ee8d1df5dac57a81bb28431d81876aaff4da83d5"
+    "storageHash": "c750d121f24014ba29c1cf1302bbb72a9c7e5af082c04c925f3bcb5bbe2cb742"
   },
   "capabilities": {
     "postgres": {
