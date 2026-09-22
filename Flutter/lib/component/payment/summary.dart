@@ -34,6 +34,9 @@ class AppointmentPaymentSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final utcTime = DateTime.parse(appointment.slot.startAt.toString());
+    final nzTime = utcTime.toLocal();
+
     return PaymentSummaryContainer(
       title: 'Order Summary',
       child: Row(
@@ -95,7 +98,7 @@ class AppointmentPaymentSummary extends StatelessWidget {
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
-                              '${appointment.date.year}-${appointment.date.month}-${appointment.date.day}  ${appointment.time}',
+                              '${nzTime.year}-${nzTime.month}-${nzTime.day}  ${nzTime.hour}:${nzTime.minute}',
                               style: const TextStyle(
                                 fontSize: 10,
                                 color: Color(0xFF4F5970),

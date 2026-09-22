@@ -47,7 +47,8 @@ class _AppointmentPageState extends State<AppointmentPage> {
   GroomerData? _selectedGroomer;
   List<GroomerData> _groomers = [];
   DateTime? _selectedDate;
-  String? _selectedTime;
+  List<AppointmentSlotData> _slots = [];
+  AppointmentSlotData? _selectedSlot;
   String _notes = '';
 
   double get _subtotal {
@@ -142,7 +143,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
         break;
       case AppointmentStage.time:
-        if (_selectedDate == null || _selectedTime == null) {
+        if (_selectedDate == null || _selectedSlot == null) {
           _showMessage('Please select a date and time');
           return;
         }
@@ -173,6 +174,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
         });
         break;
       case AppointmentStage.time:
+        _getAvailability(DateTime.now());
         setState(() {
           _stage = AppointmentStage.groomer;
         });
@@ -198,8 +200,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
             spa: _selectedSPA,
             shop: _selectedShop!,
             groomer: _selectedGroomer!,
-            date: _selectedDate!,
-            time: _selectedTime!,
+            slot: _selectedSlot!,
             notes: _notes,
             addons: _selectedAddons,
           ),
@@ -269,21 +270,23 @@ class _AppointmentPageState extends State<AppointmentPage> {
       case AppointmentStage.time:
         return AppointmentTimeContent(
           selectedDate: _selectedDate,
-          selectedTime: _selectedTime,
+          selectedSlot: _selectedSlot,
+          slots: _slots,
           duration:
               (_selectedService?.duration ?? 0) +
               (_selectedStyling?.duration ?? 0) +
               (_selectedSPA?.duration ?? 0),
           closingTime: _selectedShop?.closingTime ?? '',
           onDateChanged: (date) {
+            _getAvailability(date);
             setState(() {
               _selectedDate = date;
-              _selectedTime = null;
+              _selectedSlot = null;
             });
           },
-          onTimeChanged: (time) {
+          onTimeChanged: (slot) {
             setState(() {
-              _selectedTime = time;
+              _selectedSlot = slot;
             });
           },
         );
@@ -295,8 +298,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
           spa: _selectedSPA,
           shop: _selectedShop!,
           groomer: _selectedGroomer!,
-          selectedDate: _selectedDate!,
-          selectedTime: _selectedTime!,
+          slot: _selectedSlot!,
           initialNotes: _notes,
           onNotesChanged: (value) {
             _notes = value;
@@ -438,31 +440,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
     }
   }
 
-  bool isShopOpen(String openingTime, String closingTime) {
-    try {
-      final now = DateTime.now();
-
-      DateTime parseTime(String value) {
-        final parts = value.split(':');
-
-        return DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(parts[0]),
-          int.parse(parts[1]),
-        );
-      }
-
-      final opening = parseTime(openingTime);
-      final closing = parseTime(closingTime);
-
-      return !now.isBefore(opening) && now.isBefore(closing);
-    } catch (_) {
-      return false;
-    }
-  }
-
   Future<void> _onShopChanged(ShopData shop) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('shop_id', shop.id);
@@ -472,10 +449,48 @@ class _AppointmentPageState extends State<AppointmentPage> {
       _selectedGroomer = null;
       _groomers = [];
       _selectedDate = null;
-      _selectedTime = null;
+      _selectedSlot = null;
     });
 
     await _getGroomerList();
+  }
+
+  Future<void> _getAvailability(DateTime date) async {
+    try {
+      var ids = [_selectedService!.priceId];
+      if (_selectedStyling != null) {
+        ids.add(_selectedStyling!.priceId);
+      }
+      if (_selectedSPA != null) {
+        ids.add(_selectedSPA!.priceId);
+      }
+
+      final res = await AppointmentService.instance.getAvailability(
+        _selectedShop!.id,
+        _selectedGroomer!.id,
+        ids,
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
+      );
+      final list = res.slots
+          .map((item) => AppointmentSlotData.fromModel(item))
+          .toList();
+
+      setState(() {
+        _slots = list;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
   }
 
   @override

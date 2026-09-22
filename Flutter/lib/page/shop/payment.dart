@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/user-service.dart';
 import '../../services/shop-service.dart';
+import '../../services/appointment-service.dart';
 import '../../core/network/api-exception.dart';
 
 import '../../component/payment/summary.dart';
@@ -160,6 +161,50 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
         final res = await ShopService.instance.createRechargeOrder(order);
 
         _checkPayment(res.order.id);
+      } on ApiException catch (e) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _processing = false;
+          });
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
+      }
+    } else if (widget.type == PaymentSummaryType.appointment) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final userId = prefs.getInt('user_id');
+
+        var ids = [widget.appointment!.service.priceId];
+        if (widget.appointment!.styling != null) {
+          ids.add(widget.appointment!.styling!.priceId);
+        }
+        if (widget.appointment!.spa != null) {
+          ids.add(widget.appointment!.spa!.priceId);
+        }
+
+        final appointment = {
+          'userId': userId,
+          'petId': widget.appointment!.pet.id,
+          'shopId': widget.appointment!.shop.id,
+          'groomerId': widget.appointment!.groomer.id,
+          'servicePriceIds': ids,
+          'startAt': widget.appointment!.slot.startAt.toString(),
+          'notes': widget.appointment!.notes,
+        };
+        final res = await AppointmentService.instance.createAppointment(
+          appointment,
+        );
+
+        _checkPayment(res.appointment.id);
       } on ApiException catch (e) {
         if (!mounted) return;
 

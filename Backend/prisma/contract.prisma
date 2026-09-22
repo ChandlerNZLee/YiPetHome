@@ -16,6 +16,14 @@ model Addresses {
   @@map("addresses")
 }
 
+model AppointmentCheckoutLocks {
+  appointmentId Int         @id @map("appointment_id")
+  paymentId     Int?        @map("payment_id")
+  createdAt     Timestamptz @default(now()) @map("created_at")
+
+  @@map("appointment_payment_locks")
+}
+
 model AppointmentLocks {
   appointmentId Int         @map("appointment_id")
   groomerId     Int         @map("groomer_id")

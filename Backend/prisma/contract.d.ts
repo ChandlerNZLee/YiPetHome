@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'c750d121f24014ba29c1cf1302bbb72a9c7e5af082c04c925f3bcb5bbe2cb742'>;
+  StorageHashBase<'afd9cf34763b09e9b24c0bdaac646c294a6ab70769e584c5d27f2aea38448d2f'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -251,6 +251,11 @@ export type FieldOutputTypes = {
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly longitude: CodecTypes['pg/text@1']['output'];
       readonly latitude: CodecTypes['pg/text@1']['output'];
+    };
+    readonly AppointmentCheckoutLocks: {
+      readonly appointmentId: CodecTypes['pg/int4@1']['output'];
+      readonly paymentId: CodecTypes['pg/int4@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly AppointmentLocks: {
       readonly appointmentId: CodecTypes['pg/int4@1']['output'];
@@ -516,6 +521,11 @@ export type FieldInputTypes = {
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly longitude: CodecTypes['pg/text@1']['input'];
       readonly latitude: CodecTypes['pg/text@1']['input'];
+    };
+    readonly AppointmentCheckoutLocks: {
+      readonly appointmentId: CodecTypes['pg/int4@1']['input'];
+      readonly paymentId: CodecTypes['pg/int4@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly AppointmentLocks: {
       readonly appointmentId: CodecTypes['pg/int4@1']['input'];
@@ -787,6 +797,11 @@ export type StorageColumnTypes = {
       readonly groomer_id: CodecTypes['pg/int4@1']['output'];
       readonly slot_start: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
+    readonly appointment_payment_locks: {
+      readonly appointment_id: CodecTypes['pg/int4@1']['output'];
+      readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly payment_id: CodecTypes['pg/int4@1']['output'] | null;
+    };
     readonly appointment_services: {
       readonly appointment_id: CodecTypes['pg/int4@1']['output'];
       readonly duration: CodecTypes['pg/int4@1']['output'];
@@ -1051,6 +1066,11 @@ export type StorageColumnInputTypes = {
       readonly appointment_id: CodecTypes['pg/int4@1']['input'];
       readonly groomer_id: CodecTypes['pg/int4@1']['input'];
       readonly slot_start: CodecTypes['pg/timestamptz-temporal@1']['input'];
+    };
+    readonly appointment_payment_locks: {
+      readonly appointment_id: CodecTypes['pg/int4@1']['input'];
+      readonly created_at: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly payment_id: CodecTypes['pg/int4@1']['input'] | null;
     };
     readonly appointment_services: {
       readonly appointment_id: CodecTypes['pg/int4@1']['input'];
@@ -1409,6 +1429,30 @@ type ContractBase = Omit<
                   readonly unique: false;
                 },
               ];
+              foreignKeys: readonly [];
+            };
+            readonly appointment_payment_locks: {
+              columns: {
+                readonly appointment_id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly payment_id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
+                readonly created_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['appointment_id'] };
+              uniques: readonly [];
+              indexes: readonly [];
               foreignKeys: readonly [];
             };
             readonly appointment_services: {
@@ -2966,6 +3010,10 @@ type ContractBase = Omit<
   readonly targetFamily: 'sql';
   readonly roots: {
     readonly addresses: { readonly namespace: 'public' & NamespaceId; readonly model: 'Addresses' };
+    readonly appointment_payment_locks: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AppointmentCheckoutLocks';
+    };
     readonly appointment_locks: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'AppointmentLocks';
@@ -3125,6 +3173,35 @@ type ContractBase = Omit<
                 readonly email: { readonly column: 'email' };
                 readonly longitude: { readonly column: 'longitude' };
                 readonly latitude: { readonly column: 'latitude' };
+              };
+            };
+          };
+          readonly AppointmentCheckoutLocks: {
+            readonly fields: {
+              readonly appointmentId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly paymentId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'appointment_payment_locks';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly appointmentId: { readonly column: 'appointment_id' };
+                readonly paymentId: { readonly column: 'payment_id' };
+                readonly createdAt: { readonly column: 'created_at' };
               };
             };
           };

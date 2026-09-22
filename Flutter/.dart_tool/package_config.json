@@ -33,7 +33,7 @@
     },
     {
       "name": "archive",
-      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/archive-4.2.0",
+      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/archive-4.3.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -69,7 +69,7 @@
     },
     {
       "name": "code_assets",
-      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/code_assets-2.0.0",
+      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/code_assets-2.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.10"
     },
@@ -195,13 +195,13 @@
     },
     {
       "name": "flutter_secure_storage",
-      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/flutter_secure_storage-11.1.1",
+      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/flutter_secure_storage-11.2.0",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
     {
       "name": "flutter_secure_storage_darwin",
-      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/flutter_secure_storage_darwin-0.4.2",
+      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/flutter_secure_storage_darwin-0.4.3",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -213,7 +213,7 @@
     },
     {
       "name": "flutter_secure_storage_platform_interface",
-      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/flutter_secure_storage_platform_interface-2.1.0",
+      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/flutter_secure_storage_platform_interface-2.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -273,7 +273,7 @@
     },
     {
       "name": "image",
-      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/image-4.9.2",
+      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/image-4.10.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -579,7 +579,7 @@
     },
     {
       "name": "speech_to_text_platform_interface",
-      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/speech_to_text_platform_interface-2.4.0",
+      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/speech_to_text_platform_interface-2.5.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -693,7 +693,7 @@
     },
     {
       "name": "vector_math",
-      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/vector_math-2.4.2",
+      "rootUri": "file:///Users/chandler/.pub-cache/hosted/pub.dev/vector_math-2.4.3",
       "packageUri": "lib/",
       "languageVersion": "3.10"
     },
@@ -741,8 +741,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.13.3",
+  "generatorVersion": "3.13.4",
   "flutterRoot": "file:///Users/chandler/Documents/flutter",
-  "flutterVersion": "3.47.4",
+  "flutterVersion": "3.47.5",
   "pubCache": "file:///Users/chandler/.pub-cache"
 }

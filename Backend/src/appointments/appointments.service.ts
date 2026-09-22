@@ -22,14 +22,22 @@ export interface AppointmentAvailabilitySlot {
 export interface AppointmentAvailabilityResult {
   date: string;
   weekday: number;
+
   shopId: number;
   groomerId: number;
-  servicePriceId: number;
 
-  serviceId?: number;
-  duration?: number;
+  servicePriceIds: number[];
+
+  services: {
+    servicePriceId: number;
+    serviceId: number;
+    duration: number;
+    durationMinutes: number;
+    price: number;
+  }[];
+
   durationMinutes: number;
-  price?: number;
+  totalPrice: number;
 
   slots: AppointmentAvailabilitySlot[];
 }
@@ -49,33 +57,57 @@ export class AppointmentsService {
       petId,
       shopId,
       groomerId,
-      servicePriceId,
+      servicePriceIds,
       startAt,
       notes,
     } = dto;
 
     // --------------------------------------------------
-    // 1. Service Price
+    // 1. Service Prices
     // --------------------------------------------------
 
-    const servicePrice =
-      await this.prisma.db.orm.public.ServicePrices
-        .where({
-          id: servicePriceId,
-        })
-        .first();
-
-    if (!servicePrice) {
-      throw new NotFoundException('Service price not found');
+    if (!servicePriceIds.length) {
+      throw new BadRequestException(
+        'At least one service price must be selected',
+      );
     }
 
-    const durationMinutes = servicePrice.duration * 30;
+    const uniqueServicePriceIds = [...new Set(servicePriceIds)];
+
+    if (uniqueServicePriceIds.length !== servicePriceIds.length) {
+      throw new BadRequestException(
+        'Duplicate service prices are not allowed',
+      );
+    }
+
+    const allServicePrices =
+      await this.prisma.db.orm.public.ServicePrices.all();
+
+    const servicePrices = allServicePrices.filter((price) =>
+      uniqueServicePriceIds.includes(price.id),
+    );
+
+    if (servicePrices.length !== uniqueServicePriceIds.length) {
+      throw new NotFoundException(
+        'One or more service prices not found',
+      );
+    }
+
+    const durationMinutes = servicePrices.reduce(
+      (total, item) => total + item.duration * 30,
+      0,
+    );
 
     if (durationMinutes <= 0) {
       throw new BadRequestException(
         'Service duration must be greater than 0',
       );
     }
+
+    const totalPrice = servicePrices.reduce(
+      (total, item) => total + Number(item.price),
+      0,
+    );
 
     // --------------------------------------------------
     // 2. Groomer
@@ -130,7 +162,6 @@ export class AppointmentsService {
       durationMinutes * 60_000,
     );
 
-    // 目前没有额外 buffer
     const blockingEnd = appointmentEnd;
 
     // --------------------------------------------------
@@ -138,14 +169,12 @@ export class AppointmentsService {
     // --------------------------------------------------
 
     const localDate =
-      this.formatAppointmentDate(
-        appointmentStart,
-      );
+      this.formatAppointmentDate(appointmentStart);
 
     const availability = await this.getAvailability({
       shopId,
       groomerId,
-      servicePriceId,
+      servicePriceIds: uniqueServicePriceIds,
       date: localDate,
     });
 
@@ -166,6 +195,10 @@ export class AppointmentsService {
         appointmentStart.toISOString(),
 
       localDate,
+
+      servicePriceIds: uniqueServicePriceIds,
+
+      durationMinutes,
 
       requestedSlot,
     });
@@ -205,7 +238,11 @@ export class AppointmentsService {
     try {
       const appointment =
         await this.prisma.db.transaction(async (tx) => {
+
+          // --------------------------------------------------
           // 8.1 Appointment
+          // --------------------------------------------------
+
           const createdAppointment =
             await tx.orm.public.Appointments.create({
               _type: 0,
@@ -231,35 +268,53 @@ export class AppointmentsService {
                 expiresAt.toISOString(),
               ),
 
-              originPrice: servicePrice.price,
+              originPrice: totalPrice,
               discount: 0,
-              price: servicePrice.price,
+              price: totalPrice,
 
               paymentStatus: 0,
+
               appointmentStatus:
                 AppointmentStatus.PENDING_PAYMENT,
 
               notes: notes ?? '',
             });
 
-          // 8.2 Service snapshot
-          await tx.orm.public.AppointmentServices.create({
-            appointmentId: createdAppointment.id,
-            serviceId: servicePrice.serviceId,
+          // --------------------------------------------------
+          // 8.2 Service snapshots
+          // --------------------------------------------------
 
-            price: servicePrice.price,
-            duration: servicePrice.duration,
-          });
+          for (const servicePrice of servicePrices) {
+            await tx.orm.public.AppointmentServices.create({
+              appointmentId:
+                createdAppointment.id,
 
+              serviceId:
+                servicePrice.serviceId,
+
+              price:
+                servicePrice.price,
+
+              duration:
+                servicePrice.duration,
+            });
+          }
+
+          // --------------------------------------------------
           // 8.3 Database appointment locks
+          // --------------------------------------------------
+
           for (const lockStart of lockStarts) {
             await tx.orm.public.AppointmentLocks.create({
-              appointmentId: createdAppointment.id,
+              appointmentId:
+                createdAppointment.id,
+
               groomerId,
 
-              slotStart: Temporal.Instant.from(
-                lockStart.toISOString(),
-              ),
+              slotStart:
+                Temporal.Instant.from(
+                  lockStart.toISOString(),
+                ),
             });
           }
 
@@ -281,7 +336,10 @@ export class AppointmentsService {
         );
       }
 
-      console.error('Failed to create appointment:', error);
+      console.error(
+        'Failed to create appointment:',
+        error,
+      );
 
       throw error;
     }
@@ -336,7 +394,6 @@ export class AppointmentsService {
             })
             .first();
 
-        // 防止扫描之后状态已经发生变化
         if (
           !current ||
           current.appointmentStatus !==
@@ -378,25 +435,30 @@ export class AppointmentsService {
     const {
       shopId,
       groomerId,
-      servicePriceId,
+      servicePriceIds,
       date,
     } = query;
 
-    const servicePrice =
-      await this.prisma.db.orm.public.ServicePrices
-        .where({
-          id: servicePriceId,
-        })
-        .first();
+    const allServicePrices = await this.prisma.db.orm.public.ServicePrices.all();
+    const servicePrices = allServicePrices.filter((price) =>
+      servicePriceIds.includes(price.id),
+    );
 
-    if (!servicePrice) {
+    if (servicePrices.length !== servicePriceIds.length) {
       throw new NotFoundException(
-        'Service price not found',
+        'One or more service prices not found',
       );
     }
 
-    const durationMinutes =
-      servicePrice.duration * 30;
+    const durationMinutes = servicePrices.reduce(
+      (total, item) => total + item.duration * 30,
+      0,
+    );
+
+    const totalPrice = servicePrices.reduce(
+      (total, item) => total + Number(item.price),
+      0,
+    );
 
     const availability =
       await this.getAvailableSlots(
@@ -409,23 +471,24 @@ export class AppointmentsService {
     return {
       date,
       weekday: availability.weekday,
+
       shopId,
       groomerId,
-      servicePriceId,
 
-      serviceId:
-        servicePrice.serviceId,
+      servicePriceIds,
 
-      duration:
-        servicePrice.duration,
+      services: servicePrices.map((item) => ({
+        servicePriceId: item.id,
+        serviceId: item.serviceId,
+        duration: item.duration,
+        durationMinutes: item.duration * 30,
+        price: Number(item.price),
+      })),
 
       durationMinutes,
+      totalPrice,
 
-      price:
-        servicePrice.price,
-
-      slots:
-        availability.slots,
+      slots: availability.slots,
     };
   }
 

@@ -12,6 +12,10 @@
       "model": "AppointmentLocks",
       "namespace": "public"
     },
+    "appointment_payment_locks": {
+      "model": "AppointmentCheckoutLocks",
+      "namespace": "public"
+    },
     "appointment_services": {
       "model": "AppointmentServices",
       "namespace": "public"
@@ -246,6 +250,47 @@
               },
               "namespaceId": "public",
               "table": "addresses"
+            }
+          },
+          "AppointmentCheckoutLocks": {
+            "fields": {
+              "appointmentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "paymentId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "appointmentId": {
+                  "column": "appointment_id"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "paymentId": {
+                  "column": "payment_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "appointment_payment_locks"
             }
           },
           "AppointmentLocks": {
@@ -2784,6 +2829,37 @@
               },
               "uniques": []
             },
+            "appointment_payment_locks": {
+              "columns": {
+                "appointment_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "created_at": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "payment_id": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "appointment_id"
+                ]
+              },
+              "uniques": []
+            },
             "appointment_services": {
               "columns": {
                 "appointment_id": {
@@ -4504,7 +4580,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "c750d121f24014ba29c1cf1302bbb72a9c7e5af082c04c925f3bcb5bbe2cb742"
+    "storageHash": "afd9cf34763b09e9b24c0bdaac646c294a6ab70769e584c5d27f2aea38448d2f"
   },
   "capabilities": {
     "postgres": {

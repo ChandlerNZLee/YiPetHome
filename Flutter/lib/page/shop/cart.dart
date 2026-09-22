@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'select-address.dart';
 
 import '../../view-models/cart.dart';
-import '../../view-models/payment.dart';
 
 class CartPage extends ConsumerStatefulWidget {
   const CartPage({super.key});

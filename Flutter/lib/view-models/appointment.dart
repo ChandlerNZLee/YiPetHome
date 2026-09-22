@@ -11,6 +11,7 @@ class ServiceData {
   final String name;
   final String description;
   final String image;
+  final int priceId;
   final double price;
   final int duration;
 
@@ -20,6 +21,7 @@ class ServiceData {
     required this.name,
     required this.description,
     required this.image,
+    required this.priceId,
     required this.price,
     required this.duration,
   });
@@ -31,6 +33,7 @@ class ServiceData {
       name: model.name,
       description: model.description,
       image: model.image,
+      priceId: model.priceId,
       price: model.price,
       duration: model.duration,
     );
@@ -104,6 +107,26 @@ class CalendarDayData {
   const CalendarDayData({required this.date, required this.currentMonth});
 }
 
+class AppointmentSlotData {
+  final DateTime startAt;
+  final DateTime endAt;
+  final bool available;
+
+  const AppointmentSlotData({
+    required this.startAt,
+    required this.endAt,
+    required this.available,
+  });
+
+  factory AppointmentSlotData.fromModel(AppointmentSlotModel model) {
+    return AppointmentSlotData(
+      startAt: model.startAt,
+      endAt: model.endAt,
+      available: model.available,
+    );
+  }
+}
+
 class PaymentAppointmentData {
   final PetData pet;
   final ServiceData service;
@@ -111,8 +134,7 @@ class PaymentAppointmentData {
   final ServiceData? spa;
   final ShopData shop;
   final GroomerData groomer;
-  final DateTime date;
-  final String time;
+  final AppointmentSlotData slot;
   final String notes;
   final List<ServiceData> addons;
 
@@ -123,8 +145,7 @@ class PaymentAppointmentData {
     this.spa,
     required this.shop,
     required this.groomer,
-    required this.date,
-    required this.time,
+    required this.slot,
     required this.notes,
     required this.addons,
   });

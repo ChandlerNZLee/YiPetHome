@@ -47,3 +47,30 @@ class GroomerListResponse {
     );
   }
 }
+
+class AvailabilityResponse {
+  final List<AppointmentSlotModel> slots;
+
+  const AvailabilityResponse({required this.slots});
+
+  factory AvailabilityResponse.fromJson(Map<String, dynamic> json) {
+    return AvailabilityResponse(
+      slots: (json['slots'] as List<dynamic>)
+          .map(
+            (item) =>
+                AppointmentSlotModel.fromJson(item as Map<String, dynamic>),
+          )
+          .toList(),
+    );
+  }
+}
+
+class AppointmentResponse {
+  final AppointmentModel appointment;
+
+  const AppointmentResponse({required this.appointment});
+
+  factory AppointmentResponse.fromJson(Map<String, dynamic> json) {
+    return AppointmentResponse(appointment: AppointmentModel.fromJson(json));
+  }
+}

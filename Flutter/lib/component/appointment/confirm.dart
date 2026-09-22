@@ -12,8 +12,7 @@ class AppointmentConfirmContent extends StatefulWidget {
   final ServiceData? spa;
   final ShopData shop;
   final GroomerData groomer;
-  final DateTime selectedDate;
-  final String selectedTime;
+  final AppointmentSlotData slot;
   final String initialNotes;
   final ValueChanged<String> onNotesChanged;
   final List<ServiceData> selectedAddons;
@@ -28,8 +27,7 @@ class AppointmentConfirmContent extends StatefulWidget {
     required this.spa,
     required this.shop,
     required this.groomer,
-    required this.selectedDate,
-    required this.selectedTime,
+    required this.slot,
     required this.initialNotes,
     required this.onNotesChanged,
     required this.selectedAddons,
@@ -150,8 +148,7 @@ class _AppointmentConfirmContentState extends State<AppointmentConfirmContent> {
             shopAddress: widget.shop.address,
             groomerName: widget.groomer.name,
             isSeniorGroomer: widget.groomer.category == GroomerCategory.senior,
-            selectedDate: widget.selectedDate,
-            selectedTime: widget.selectedTime,
+            slot: widget.slot,
             duration: duration.toString(),
             petImagePath: widget.pet.imagePath,
           ),
@@ -299,8 +296,7 @@ class AppointmentSummaryCard extends StatelessWidget {
   final String shopAddress;
   final String groomerName;
   final bool isSeniorGroomer;
-  final DateTime? selectedDate;
-  final String? selectedTime;
+  final AppointmentSlotData? slot;
   final String duration;
   final String petImagePath;
 
@@ -313,8 +309,7 @@ class AppointmentSummaryCard extends StatelessWidget {
     required this.shopAddress,
     required this.groomerName,
     required this.isSeniorGroomer,
-    required this.selectedDate,
-    required this.selectedTime,
+    required this.slot,
     required this.duration,
     required this.petImagePath,
   });
@@ -386,7 +381,7 @@ class AppointmentSummaryCard extends StatelessWidget {
                     _SummaryItem(
                       icon: Icons.calendar_month_outlined,
                       label: 'Date & Time',
-                      value: _formatDateAndTime(selectedDate, selectedTime),
+                      value: _formatDateAndTime(slot),
                     ),
                     const SizedBox(height: 6),
                     _SummaryItem(
@@ -405,8 +400,8 @@ class AppointmentSummaryCard extends StatelessWidget {
     );
   }
 
-  static String _formatDateAndTime(DateTime? date, String? time) {
-    if (date == null || time == null) {
+  static String _formatDateAndTime(AppointmentSlotData? slot) {
+    if (slot == null) {
       return 'Not selected';
     }
 
@@ -425,8 +420,11 @@ class AppointmentSummaryCard extends StatelessWidget {
       'December',
     ];
 
-    return '${months[date.month - 1]} '
-        '${date.day}, ${date.year} at $time';
+    final utcTime = DateTime.parse(slot.startAt.toString());
+    final nzTime = utcTime.toLocal();
+
+    return '${months[nzTime.month - 1]} '
+        '${nzTime.day}, ${nzTime.year} at ${nzTime.hour}:${nzTime.minute}';
   }
 }
 

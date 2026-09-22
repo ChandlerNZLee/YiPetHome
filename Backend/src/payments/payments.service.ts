@@ -1,5 +1,6 @@
 import {
     BadRequestException,
+    ConflictException,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
@@ -8,8 +9,10 @@ import { Cron } from '@nestjs/schedule';
 
 import { Temporal } from 'temporal-polyfill';
 
-import { PAYMENT_STATUS, ORDER_STATUS } from './constants/payment-status.constant';
 import Stripe from 'stripe';
+
+import { PAYMENT_STATUS, ORDER_STATUS } from './constants/payment-status.constant';
+import { AppointmentStatus } from '../appointments/enums/appointment-status.enum';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { StripeProvider } from './providers/stripe.provider';
@@ -21,6 +24,106 @@ export class PaymentsService {
         private readonly stripeProvider: StripeProvider,
         private readonly configService: ConfigService,
     ) { }
+
+    private async acquireAppointmentCheckoutLock(
+        appointmentId: number,
+    ): Promise<boolean> {
+        try {
+            await this.prisma.db.orm.public.AppointmentCheckoutLocks.create({
+                appointmentId,
+                paymentId: null,
+            });
+
+            return true;
+        } catch (error: unknown) {
+            if (
+                typeof error === 'object' &&
+                error !== null &&
+                'sqlState' in error &&
+                'constraint' in error &&
+                error.sqlState === '23505' &&
+                error.constraint ===
+                'appointment_checkout_locks_pkey'
+            ) {
+                return false;
+            }
+
+            throw error;
+        }
+    }
+
+    private async reuseAppointmentCheckout(
+        appointmentId: number,
+    ) {
+        const lock =
+            await this.prisma.db.orm.public.AppointmentCheckoutLocks
+                .where({
+                    appointmentId,
+                })
+                .first();
+
+        if (!lock) {
+            throw new ConflictException(
+                'Checkout state changed. Please retry.',
+            );
+        }
+
+        /*
+         * Winner has acquired the lock but has not finished
+         * creating the Payment yet.
+         */
+        if (!lock.paymentId) {
+            throw new ConflictException(
+                'Checkout session is being created. Please retry.',
+            );
+        }
+
+        const payment =
+            await this.prisma.db.orm.public.Payments
+                .where({
+                    id: lock.paymentId,
+                })
+                .first();
+
+        if (!payment) {
+            throw new ConflictException(
+                'Checkout session is being created. Please retry.',
+            );
+        }
+
+        if (!payment.stripeCheckoutSessionId) {
+            throw new ConflictException(
+                'Checkout session is being created. Please retry.',
+            );
+        }
+
+        const session =
+            await this.stripeProvider
+                .retrieveCheckoutSession(
+                    payment.stripeCheckoutSessionId,
+                );
+
+        if (
+            session.status === 'open' &&
+            session.url
+        ) {
+            return {
+                paymentId: payment.id,
+                sessionId: session.id,
+                url: session.url,
+            };
+        }
+
+        if (session.status === 'complete') {
+            throw new ConflictException(
+                'Payment has already completed and is being processed',
+            );
+        }
+
+        throw new ConflictException(
+            'Checkout session is no longer active. Please retry.',
+        );
+    }
 
     async createCheckoutSession(
         orderId: number,
@@ -164,7 +267,7 @@ export class PaymentsService {
             }
 
             if (
-                appointment.appointmentStatus !== 0
+                appointment.appointmentStatus !== AppointmentStatus.PENDING_PAYMENT
             ) {
                 throw new BadRequestException(
                     'Appointment is not pending payment',
@@ -230,10 +333,103 @@ export class PaymentsService {
                     },
                 },
             ];
+
+            const existingPayments =
+                await this.prisma.db.orm.public.Payments
+                    .where({
+                        paymentType: 2,
+                        appointmentId: orderId,
+                    })
+                    .all();
+
+            const reusablePayments =
+                existingPayments
+                    .filter(
+                        (payment) =>
+                            (
+                                payment.status ===
+                                PAYMENT_STATUS.PENDING ||
+                                payment.status ===
+                                PAYMENT_STATUS.FAILED
+                            ) &&
+                            payment.stripeCheckoutSessionId,
+                    )
+                    .sort(
+                        (a, b) =>
+                            b.id - a.id,
+                    );
+
+            for (const payment of reusablePayments) {
+                if (!payment.stripeCheckoutSessionId) {
+                    continue;
+                }
+
+                try {
+                    const session =
+                        await this.stripeProvider
+                            .retrieveCheckoutSession(
+                                payment.stripeCheckoutSessionId,
+                            );
+
+                    if (
+                        session.status === 'open' &&
+                        session.url
+                    ) {
+                        return {
+                            paymentId: payment.id,
+                            sessionId: session.id,
+                            url: session.url,
+                        };
+                    }
+
+                    if (session.status === 'complete') {
+                        throw new ConflictException(
+                            'Payment has already completed and is being processed',
+                        );
+                    }
+
+                    if (session.status === 'expired') {
+                        await this.prisma.db.orm.public.Payments
+                            .where({
+                                id: payment.id,
+                            })
+                            .update({
+                                status:
+                                    PAYMENT_STATUS.CANCELLED,
+                                updatedAt:
+                                    Temporal.Now.instant(),
+                            });
+
+                        continue;
+                    }
+                } catch (error) {
+                    console.error(
+                        `Failed to retrieve Stripe Checkout Session ${payment.stripeCheckoutSessionId}`,
+                        error,
+                    );
+                }
+            }
         } else {
             throw new BadRequestException(
                 'Unsupported payment type',
             );
+        }
+
+        let checkoutLockAcquired = false;
+        let createdStripeSessionId: string | null = null;
+        let createdPaymentId: number | null = null;
+
+        if (orderType === 2) {
+            checkoutLockAcquired =
+                await this.acquireAppointmentCheckoutLock(
+                    orderId,
+                );
+
+            if (!checkoutLockAcquired) {
+                return this.reuseAppointmentCheckout(
+                    orderId,
+                );
+            }
         }
 
         const payment = await this.prisma.db.orm.public.Payments.create({
@@ -254,7 +450,19 @@ export class PaymentsService {
             updatedAt: Temporal.Now.instant(),
         });
 
+        createdPaymentId = payment.id;
+
         try {
+            if (orderType === 2) {
+                await this.prisma.db.orm.public.AppointmentCheckoutLocks
+                    .where({
+                        appointmentId: orderId,
+                    })
+                    .update({
+                        paymentId: payment.id,
+                    });
+            }
+
             const session =
                 await this.stripeProvider.createCheckoutSession({
                     mode: 'payment',
@@ -281,6 +489,8 @@ export class PaymentsService {
                     },
                 });
 
+            createdStripeSessionId = session.id;
+
             await this.prisma.db.orm.public.Payments.where({
                 id: payment.id,
             }).update({
@@ -296,6 +506,52 @@ export class PaymentsService {
                 checkoutUrl: session.url,
             };
         } catch (error) {
+            if (
+                orderType === 2 &&
+                checkoutLockAcquired
+            ) {
+                /*
+                 * If Stripe Session already exists,
+                 * expire it before releasing the DB lock.
+                 */
+                if (createdStripeSessionId) {
+                    try {
+                        await this.stripeProvider
+                            .expireCheckoutSession(
+                                createdStripeSessionId,
+                            );
+                    } catch (expireError) {
+                        console.error(
+                            `Failed to clean up Stripe Checkout Session ${createdStripeSessionId}`,
+                            expireError,
+                        );
+                    }
+                }
+
+                if (createdPaymentId) {
+                    await this.prisma.db.orm.public.Payments
+                        .where({
+                            id: createdPaymentId,
+                        })
+                        .update({
+                            status:
+                                PAYMENT_STATUS.FAILED,
+
+                            failureMessage:
+                                'Failed to create Stripe Checkout Session',
+
+                            updatedAt:
+                                Temporal.Now.instant(),
+                        });
+                }
+
+                await this.prisma.db.orm.public.AppointmentCheckoutLocks
+                    .where({
+                        appointmentId: orderId,
+                    })
+                    .deleteAll();
+            }
+
             await this.prisma.db.orm.public.Payments.where({
                 id: payment.id,
             }).update({
@@ -369,7 +625,7 @@ export class PaymentsService {
             }
 
             if (
-                appointment.appointmentStatus !== 0
+                appointment.appointmentStatus !== AppointmentStatus.PENDING_PAYMENT
             ) {
                 continue;
             }
@@ -710,10 +966,15 @@ export class PaymentsService {
                 );
             }
 
-            if (
-                payment.status ===
-                PAYMENT_STATUS.SUCCEEDED
-            ) {
+            if (payment.status === PAYMENT_STATUS.SUCCEEDED) {
+                if (payment.appointmentId) {
+                    await tx.orm.public.AppointmentCheckoutLocks
+                        .where({
+                            appointmentId: payment.appointmentId,
+                        })
+                        .deleteAll();
+                }
+
                 return;
             }
 
@@ -728,7 +989,7 @@ export class PaymentsService {
                 );
             }
 
-            if (appointment.appointmentStatus !== 0) {
+            if (appointment.appointmentStatus !== AppointmentStatus.PENDING_PAYMENT) {
                 throw new BadRequestException(
                     'Appointment is no longer pending payment',
                 );
@@ -792,8 +1053,16 @@ export class PaymentsService {
                         PAYMENT_STATUS.SUCCEEDED,
 
                     // CONFIRMED
-                    appointmentStatus: 1,
+                    appointmentStatus: AppointmentStatus.CONFIRMED,
                 });
+
+            // Checkout lifecycle finished.
+            await tx.orm.public.AppointmentCheckoutLocks
+                .where({
+                    appointmentId:
+                        appointment.id,
+                })
+                .deleteAll();
         });
     }
 
@@ -818,17 +1087,48 @@ export class PaymentsService {
                 return;
             }
 
-            if (
-                payment.status ===
-                PAYMENT_STATUS.SUCCEEDED
-            ) {
+            if (payment.status === PAYMENT_STATUS.SUCCEEDED) {
+                if (
+                    payment.paymentType === 2 &&
+                    payment.appointmentId
+                ) {
+                    await tx.orm.public.AppointmentCheckoutLocks
+                        .where({
+                            appointmentId: payment.appointmentId,
+                        })
+                        .deleteAll();
+                }
+
                 return;
             }
 
-            if (
-                payment.status ===
-                PAYMENT_STATUS.REFUNDED
-            ) {
+            if (payment.status === PAYMENT_STATUS.REFUNDED) {
+                if (
+                    payment.paymentType === 2 &&
+                    payment.appointmentId
+                ) {
+                    await tx.orm.public.AppointmentCheckoutLocks
+                        .where({
+                            appointmentId: payment.appointmentId,
+                        })
+                        .deleteAll();
+                }
+
+                return;
+            }
+
+            if (payment.status === PAYMENT_STATUS.CANCELLED) {
+                if (
+                    payment.paymentType === 2 &&
+                    payment.appointmentId
+                ) {
+                    await tx.orm.public.AppointmentCheckoutLocks
+                        .where({
+                            appointmentId: payment.appointmentId,
+                        })
+                        .deleteAll();
+                }
+
                 return;
             }
 
@@ -862,17 +1162,23 @@ export class PaymentsService {
                 );
             }
 
-            if (appointment.appointmentStatus !== 0) {
+            if (appointment.appointmentStatus !== AppointmentStatus.PENDING_PAYMENT) {
                 return;
             }
 
             await tx.orm.public.Appointments
                 .where({ id: appointment.id })
                 .update({
-                    appointmentStatus: 4,
+                    appointmentStatus: AppointmentStatus.EXPIRED,
                 });
 
             await tx.orm.public.AppointmentLocks
+                .where({
+                    appointmentId: appointment.id,
+                })
+                .deleteAll();
+
+            await tx.orm.public.AppointmentCheckoutLocks
                 .where({
                     appointmentId: appointment.id,
                 })
@@ -1113,7 +1419,7 @@ export class PaymentsService {
                         PAYMENT_STATUS.REFUNDED,
 
                     // CANCELLED
-                    appointmentStatus: 3,
+                    appointmentStatus: AppointmentStatus.CANCELLED,
                 });
 
             await tx.orm.public.AppointmentLocks
@@ -1146,7 +1452,7 @@ export class PaymentsService {
         }
 
         // 1 = CONFIRMED
-        if (appointment.appointmentStatus !== 1) {
+        if (appointment.appointmentStatus !== AppointmentStatus.CONFIRMED) {
             throw new BadRequestException(
                 'Only confirmed appointments can be refunded',
             );

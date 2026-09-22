@@ -38,7 +38,7 @@ class AppointmentGroomerContent extends StatelessWidget {
         .where((item) => item.category == GroomerCategory.standard)
         .toList();
     final selectedStore = shops.firstWhere(
-      (store) => store.id == selectedShopId,
+      (shop) => shop.id == selectedShopId,
       orElse: () => shops.first,
     );
 
@@ -217,8 +217,8 @@ class StoreSelectionCard extends StatelessWidget {
         );
       }
 
-      final opening = parseTime(openingTime);
-      final closing = parseTime(closingTime);
+      final opening = parseTime(data.openingTime);
+      final closing = parseTime(data.closingTime);
 
       return !now.isBefore(opening) && now.isBefore(closing);
     } catch (_) {

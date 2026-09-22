@@ -32,8 +32,8 @@ class ShopModel {
       longitude: json['longitude'] ?? '',
       latitude: json['latitude'] ?? '',
       contact: json['contact'] ?? '',
-      openingTime: json['opening_time'] ?? '',
-      closingTime: json['closing_time'] ?? '',
+      openingTime: json['openingTime'] ?? '',
+      closingTime: json['closingTime'] ?? '',
       description: json['description'] ?? '',
       image: json['image'] ?? '',
     );

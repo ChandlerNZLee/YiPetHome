@@ -68,6 +68,7 @@ export class ServicesService {
         name: service.name,
         description: service.description,
         image: service.image,
+        priceId: item.id,
         price: item.price,
         duration: item.duration,
         weight_from: item.weightFrom,

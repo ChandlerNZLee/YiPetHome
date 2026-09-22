@@ -5,16 +5,18 @@ import '../../view-models/appointment.dart';
 
 class AppointmentTimeContent extends StatefulWidget {
   final DateTime? selectedDate;
-  final String? selectedTime;
+  final List<AppointmentSlotData> slots;
+  final AppointmentSlotData? selectedSlot;
   final int duration;
   final String closingTime;
   final ValueChanged<DateTime> onDateChanged;
-  final ValueChanged<String> onTimeChanged;
+  final ValueChanged<AppointmentSlotData> onTimeChanged;
 
   const AppointmentTimeContent({
     super.key,
     required this.selectedDate,
-    required this.selectedTime,
+    required this.slots,
+    required this.selectedSlot,
     required this.duration,
     required this.closingTime,
     required this.onDateChanged,
@@ -28,24 +30,6 @@ class AppointmentTimeContent extends StatefulWidget {
 class _AppointmentTimeContentState extends State<AppointmentTimeContent> {
   static const Color textPrimary = Color(0xFF17191D);
   late DateTime _displayedMonth;
-  final List<String> _availableTimes = const [
-    '9:00 AM',
-    '9:30 AM',
-    '10:00 AM',
-    '10:30 AM',
-    '11:00 AM',
-    '11:30 AM',
-    '12:00 PM',
-    '12:30 PM',
-    '1:00 PM',
-    '1:30 PM',
-    '2:00 PM',
-    '2:30 PM',
-    '3:00 PM',
-    '3:30 PM',
-    '4:00 PM',
-    '4:30 PM',
-  ];
 
   @override
   void initState() {
@@ -94,8 +78,8 @@ class _AppointmentTimeContentState extends State<AppointmentTimeContent> {
     widget.onDateChanged(date);
   }
 
-  void _selectTime(String time) {
-    widget.onTimeChanged(time);
+  void _selectTime(AppointmentSlotData slot) {
+    widget.onTimeChanged(slot);
   }
 
   void _editSelectedTime() {
@@ -105,76 +89,6 @@ class _AppointmentTimeContentState extends State<AppointmentTimeContent> {
         duration: Duration(seconds: 1),
       ),
     );
-  }
-
-  DateTime? _parseTime(DateTime date, String time) {
-    try {
-      final trimmed = time.trim();
-
-      if (trimmed.isEmpty) {
-        return null;
-      }
-
-      final parts = trimmed.split(RegExp(r'\s+'));
-      final timeParts = parts[0].split(':');
-
-      if (timeParts.length < 2) {
-        return null;
-      }
-
-      var hour = int.parse(timeParts[0]);
-      final minute = int.parse(timeParts[1]);
-
-      if (parts.length > 1) {
-        final period = parts[1].toUpperCase();
-
-        if (period == 'PM' && hour != 12) {
-          hour += 12;
-        }
-
-        if (period == 'AM' && hour == 12) {
-          hour = 0;
-        }
-      }
-
-      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-        return null;
-      }
-
-      return DateTime(date.year, date.month, date.day, hour, minute);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  bool _isTimeAvailable(String time) {
-    final selectedDate = widget.selectedDate;
-    if (selectedDate == null) {
-      return false;
-    }
-
-    final now = DateTime.now();
-    final slotTime = _parseTime(selectedDate, time);
-    final closingTime = _parseTime(selectedDate, widget.closingTime);
-    if (slotTime == null || closingTime == null) {
-      return false;
-    }
-
-    final isToday =
-        selectedDate.year == now.year &&
-        selectedDate.month == now.month &&
-        selectedDate.day == now.day;
-
-    if (isToday && !slotTime.isAfter(now)) {
-      return false;
-    }
-
-    final endTime = slotTime.add(Duration(minutes: widget.duration * 30));
-    if (endTime.isAfter(closingTime)) {
-      return false;
-    }
-
-    return true;
   }
 
   @override
@@ -210,17 +124,16 @@ class _AppointmentTimeContentState extends State<AppointmentTimeContent> {
           ),
           const SizedBox(height: 16),
           _TimeGrid(
-            times: _availableTimes,
-            selectedTime: widget.selectedTime,
+            slots: widget.slots,
+            selectedSlot: widget.selectedSlot,
             onSelected: _selectTime,
-            isTimeEnabled: _isTimeAvailable,
           ),
           const SizedBox(height: 24),
 
-          if (widget.selectedDate != null && widget.selectedTime != null)
+          if (widget.selectedDate != null && widget.selectedSlot != null)
             SelectedTimeCard(
               date: widget.selectedDate!,
-              time: widget.selectedTime!,
+              slot: widget.selectedSlot!,
               onEdit: _editSelectedTime,
             ),
         ],
@@ -473,16 +386,14 @@ class _CalendarDayCell extends StatelessWidget {
 }
 
 class _TimeGrid extends StatelessWidget {
-  final List<String> times;
-  final String? selectedTime;
-  final ValueChanged<String> onSelected;
-  final bool Function(String) isTimeEnabled;
+  final List<AppointmentSlotData> slots;
+  final AppointmentSlotData? selectedSlot;
+  final ValueChanged<AppointmentSlotData> onSelected;
 
   const _TimeGrid({
-    required this.times,
-    required this.selectedTime,
+    required this.slots,
+    required this.selectedSlot,
     required this.onSelected,
-    required this.isTimeEnabled,
   });
 
   @override
@@ -495,9 +406,13 @@ class _TimeGrid extends StatelessWidget {
         return Wrap(
           spacing: spacing,
           runSpacing: 12,
-          children: times.map((time) {
-            final selected = selectedTime == time;
-            final enabled = isTimeEnabled(time);
+          children: slots.map((slot) {
+            final utcTime = DateTime.parse(slot.startAt.toString());
+            final nzTime = utcTime.toLocal();
+            final time =
+                '${nzTime.hour.toString().padLeft(2, '0')}:${nzTime.minute.toString().padLeft(2, '0')}';
+            final selected = selectedSlot == slot;
+            final enabled = slot.available && nzTime.isAfter(DateTime.now());
 
             return SizedBox(
               width: width,
@@ -506,7 +421,7 @@ class _TimeGrid extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
-                  onTap: enabled ? () => onSelected(time) : null,
+                  onTap: enabled ? () => onSelected(slot) : null,
                   borderRadius: BorderRadius.circular(12),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
@@ -552,18 +467,23 @@ class _TimeGrid extends StatelessWidget {
 
 class SelectedTimeCard extends StatelessWidget {
   final DateTime date;
-  final String time;
+  final AppointmentSlotData slot;
   final VoidCallback onEdit;
 
   const SelectedTimeCard({
     super.key,
     required this.date,
-    required this.time,
+    required this.slot,
     required this.onEdit,
   });
 
   @override
   Widget build(BuildContext context) {
+    final utcTime = DateTime.parse(slot.startAt.toString());
+    final nzTime = utcTime.toLocal();
+    final time =
+        '${nzTime.hour.toString().padLeft(2, '0')}:${nzTime.minute.toString().padLeft(2, '0')}';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),

@@ -1,10 +1,12 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsDateString,
   IsInt,
   IsOptional,
   IsString,
   Min,
+  ArrayMinSize
 } from 'class-validator';
 
 export class CreateAppointmentDto {
@@ -28,10 +30,22 @@ export class CreateAppointmentDto {
   @Min(1, { message: 'Groomer ID must be greater than 0.' })
   groomerId!: number;
 
-  @Type(() => Number)
-  @IsInt({ message: 'Service price ID must be an integer.' })
-  @Min(1, { message: 'Service price ID must be greater than 0.' })
-  servicePriceId!: number;
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value.map((item) => Number(item));
+    }
+
+    return String(value)
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .map((item) => Number(item));
+  })
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  servicePriceIds!: number[];
 
   @IsDateString(
     {},
