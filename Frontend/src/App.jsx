@@ -5,6 +5,7 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Login from "./components/Login";
 import Reset from "./components/Reset";
 import MainPage from "./components/MainPage";
+import NotFound from "./components/NotFound";
 
 
 function App() {
@@ -14,10 +15,10 @@ function App() {
     !!localStorage.getItem("token")
   );
   const [userrole, setUserrole] = useState(
-    localStorage.getItem('userrole') || 2
+    Number(localStorage.getItem('userrole') ?? 2)
   );
 
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(localStorage.getItem("username") || "");
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
@@ -33,6 +34,7 @@ function App() {
         if (userrole !== 2) {
           localStorage.setItem("token", token);
           localStorage.setItem("userrole", userrole);
+          localStorage.setItem("username", username);
           setUserrole(userrole);
 
           setUsername(username);
@@ -55,6 +57,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem('userrole');
+    localStorage.removeItem('username');
 
     setIsLoggedIn(false);
 
@@ -105,13 +108,8 @@ function App() {
               replace />
           )
         } />
-      <Route
-        path="*"
-        element={
-          <Navigate
-            to="/login"
-            replace />
-        } />
+      <Route path="/unauthorized" element={<NotFound unauthorized />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
