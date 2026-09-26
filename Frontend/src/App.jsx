@@ -1,13 +1,11 @@
 // src/App.jsx
-import axios from "axios";
+import api from "./api";
 import { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Login from "./components/Login";
 import Reset from "./components/Reset";
 import MainPage from "./components/MainPage";
 
-// const API_URL = "http://localhost:3001";
-const API_URL = "https://api.nzdc.co.uk";
 
 function App() {
   const navigate = useNavigate()
@@ -27,8 +25,8 @@ function App() {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    axios
-      .post(`${API_URL}/auth/web/login`, { username, password })
+    api
+      .post(`/auth/web/login`, { username, password })
       .then((res) => {
         let token = res.data.token;
         let userrole = res.data.user.role;

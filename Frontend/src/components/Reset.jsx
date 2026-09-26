@@ -1,12 +1,10 @@
 // src/components/Reset.jsx
-import axios from "axios";
+import api from "../api";
 import { useState } from "react";
 import { useSearchParams } from 'react-router-dom'
 import "../css/reset.css";
 import resetBg from "../assets/imgs/login_img.png";
 
-// const API_URL = "http://localhost:3001";
-const API_URL = "https://api.nzdc.co.uk";
 
 function LockIcon() {
     return (
@@ -62,8 +60,8 @@ function ResetPassword({
             return;
         }
 
-        axios
-            .post(`${API_URL}/auth/web/reset`, { token, password })
+        api
+            .post(`/auth/web/reset`, { token, password })
             .then((res) => {
                 setResetSuccess(true);
             })

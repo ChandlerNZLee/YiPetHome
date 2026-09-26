@@ -668,3 +668,3207 @@ VALUES (
         'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164147710.jpg',
         2
     );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164050818.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164053948.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164057426.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164100732.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164104474.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164108747.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164111786.jpg',
+        6
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164115017.jpg',
+        7
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164118616.jpg',
+        8
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        14,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627164121631.jpg',
+        9
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        15,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163926364.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        15,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163934408.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        15,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163937537.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        15,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163945013.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        15,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163949423.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        15,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163952497.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        15,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163956838.jpg',
+        6
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        16,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225757349.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        16,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225803321.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        17,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225632022.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        17,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225635567.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        18,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231551228.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        18,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231553890.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        18,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231556588.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        18,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231559022.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        19,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231513243.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        19,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231516053.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        19,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231518451.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        19,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231521006.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        19,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231525423.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        20,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231427995.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        20,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231431866.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        20,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231434374.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        20,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231436631.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        21,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231406977.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        21,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231409699.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        21,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231413175.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        22,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231332822.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        22,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231335276.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        22,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231338011.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        22,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231340403.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        22,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231342772.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        22,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231345461.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        23,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231303815.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        23,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231306361.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        23,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231308626.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        23,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231311002.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        23,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231313286.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        24,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231243651.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        24,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231245955.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        25,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231243651.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        26,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231203496.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        26,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231206834.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        26,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231211293.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        26,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231214194.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        27,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231133397.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        27,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231136187.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        27,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231138533.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        27,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231140911.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        27,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231143263.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        28,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231042268.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        28,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231047797.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        28,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231051972.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        28,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231054923.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        28,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231057899.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        28,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231105925.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        29,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231654074.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        29,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231657634.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        29,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231659636.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        29,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621231701776.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        30,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225443971.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        30,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225447724.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        30,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225451631.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        30,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225454913.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        30,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225458368.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        31,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225402062.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        31,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225405491.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        31,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225409358.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        31,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225412945.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        32,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628105406363.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        32,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628105409835.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        32,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628105413322.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        32,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628105416025.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        33,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163703289.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        33,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163718389.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        33,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163722327.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        33,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163728097.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        33,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163732688.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        34,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163326541.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        34,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163330014.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        34,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163342854.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        34,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163346097.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        34,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163356093.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        34,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163402702.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        34,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163405821.jpg',
+        6
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        34,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163408978.jpg',
+        7
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        35,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163207356.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        35,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163211224.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        35,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163216683.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        35,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163219895.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        35,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163225824.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        35,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163229661.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        36,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162616897.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        36,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163113675.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        36,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163121221.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        36,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163125401.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        36,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163131726.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        36,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163134897.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        36,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627163138485.jpg',
+        6
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        37,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162440024.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        37,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162449926.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        37,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162458255.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        37,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162455175.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        37,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162516329.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        37,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162537338.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        38,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103210242.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        38,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103215968.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        38,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103218418.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        39,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162406422.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        39,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162411807.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        39,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162416227.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        39,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162419715.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        40,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162308760.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        40,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162314487.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        40,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162319479.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        40,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162323686.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        40,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162330735.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        40,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162335330.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        40,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162339253.jpg',
+        6
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        41,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230321128.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        41,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230324137.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        41,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230328208.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        41,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230331971.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        41,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230335227.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        42,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230228914.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        42,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230232133.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        43,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230157825.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        43,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230201365.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        44,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230126381.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        44,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230129614.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        44,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230133717.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        44,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230137937.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        45,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230111189.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        46,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230036901.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        47,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230012715.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        47,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230015985.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        47,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621230019149.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        48,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225924040.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        48,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225926938.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        48,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225930284.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        49,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225846766.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        49,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225850672.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        49,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225853928.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        49,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225857203.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        49,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225900732.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        50,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621232034106.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        50,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621232037629.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        50,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621232040266.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        51,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092818478.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        51,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092825219.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        51,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092831165.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        52,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092628296.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        52,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092635158.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        52,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092640822.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        52,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092644022.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        52,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092649334.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        53,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162223546.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        54,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621232050186.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        54,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621232058040.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        54,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621232100990.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        54,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621232103698.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        55,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092847728.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        55,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092939899.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        55,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628092944508.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        56,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093120679.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        57,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628085801993.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        57,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628085805790.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        57,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628085808462.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        57,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628085811391.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103019317.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103022658.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103029196.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103032170.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103036270.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103039091.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103041994.jpg',
+        6
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103045959.jpg',
+        7
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103049849.jpg',
+        8
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103053993.jpg',
+        9
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        58,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103058364.jpg',
+        10
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        59,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091641289.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        59,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091652385.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        60,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091438410.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        60,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091444498.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        60,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091416200.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        60,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091431282.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        61,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091340805.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        61,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091345863.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        62,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091318655.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        62,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091323510.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        63,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091212780.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        63,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091247670.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        64,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091140807.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        64,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091038147.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        64,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628091026380.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        65,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102948951.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        65,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102957333.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        65,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102951753.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        66,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102918884.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        66,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102922288.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        66,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102925862.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        66,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102930140.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        66,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102933915.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        66,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628102936751.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        67,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628193129554.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        67,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628193137789.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        67,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628193143450.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        68,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161950585.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        68,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161954110.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        68,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161957383.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        68,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162001081.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        68,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162004302.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        68,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627162007402.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        69,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093916827.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        69,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093920038.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        69,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093922337.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        70,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628104013574.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        71,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093905111.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        72,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093853954.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        73,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103409555.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        73,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103413093.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        74,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103358582.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        75,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103920278.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        76,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628103911182.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        77,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628104552779.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        77,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628104603516.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        77,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628104607492.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        77,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628104610300.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        77,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628104559302.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        78,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093617033.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        78,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093621626.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        78,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093624837.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        79,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093657757.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        79,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093700851.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        79,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093704220.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        80,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093417546.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        80,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093420187.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        80,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093423271.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        81,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093356191.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        81,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093359556.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        81,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093402471.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        82,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093337957.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        82,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093334567.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        83,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093257260.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        83,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093309226.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        83,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093319856.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        84,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093225950.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        84,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093233455.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        84,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240628093239234.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        85,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225004772.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        85,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225008113.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        85,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225011443.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        85,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225016259.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        85,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621225019690.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        86,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224933838.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        86,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224937609.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        86,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224941192.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        86,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224944739.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        87,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224856657.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        87,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224900717.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        87,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224904018.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        87,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224907625.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        88,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224758576.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        88,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224802092.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        88,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224805958.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        88,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224814041.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        89,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224714402.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        89,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224717898.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        89,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224721462.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        90,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224545151.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        90,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224548627.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        90,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224552501.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        90,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224555750.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        91,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161918926.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        91,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161914887.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        92,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224516462.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        92,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224520451.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        93,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224444898.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        93,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224448612.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        93,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224452087.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        93,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224455579.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        94,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224424695.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        94,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224428212.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        95,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224342980.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        95,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224347779.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        95,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224351288.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        96,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224317531.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        96,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224321330.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        96,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224324398.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        97,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224224709.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        97,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224228784.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        97,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224232064.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        98,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161544456.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        98,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161540671.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        98,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161532949.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        98,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161537335.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        98,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161549695.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        98,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161553332.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        99,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161404365.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        99,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161408565.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        99,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161419947.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        99,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161500120.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        100,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161327937.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        100,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161342446.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        100,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161509612.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        100,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161346783.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        101,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161246047.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        101,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161250363.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        101,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161253972.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        102,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161120502.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        102,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161123694.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        102,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161128278.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        102,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161132212.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        102,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161137168.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        102,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161140718.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        103,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627160958581.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        103,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161021210.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        103,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161004927.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        103,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161028704.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        103,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161017172.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        103,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240627161025066.jpg',
+        5
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        104,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224001267.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        104,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224005775.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        104,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621224009783.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        105,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223905418.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        105,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223915140.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        105,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223919356.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        105,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223923539.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        105,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223927147.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        106,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223831017.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        106,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223835569.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        106,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223839050.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        107,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223755928.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        107,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223806124.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        107,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223811015.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        108,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223725531.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        108,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240621223730638.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        109,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111200001.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        109,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111200002.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        109,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111200003.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        109,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111200004.jpg',
+        3
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        109,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111200005.jpg',
+        4
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        110,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111430001.jpg',
+        0
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        110,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111430002.jpg',
+        1
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        110,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111430003.jpg',
+        2
+    );
+
+INSERT INTO
+    product_images OVERRIDING SYSTEM VALUE
+VALUES (
+        DEFAULT,
+        110,
+        'https://yypet-pictures.obs.cn-east-3.myhuaweicloud.com:443/20240720111430004.jpg',
+        3
+    );

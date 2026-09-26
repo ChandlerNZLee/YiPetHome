@@ -1,4 +1,4 @@
-import axios from "axios";
+import api, { getErrorMessage } from "../api";
 import { useEffect, useMemo, useState } from "react";
 import "../css/mainPage.css";
 
@@ -25,8 +25,6 @@ import menu8Selected from "../assets/imgs/tabbar_icon8_green.png";
 import menu9Unselect from "../assets/imgs/tabbar_icon9_gray.png";
 import menu9Selected from "../assets/imgs/tabbar_icon9_green.png";
 
-// const API_URL = "http://localhost:3001";
-const API_URL = "https://api.nzdc.co.uk";
 const PAGE_SIZE = 10;
 
 const Icon = ({ name, size = 20 }) => {
@@ -70,7 +68,7 @@ const configs = {
     1: {
         endpoint: "/shops",
         empty: "No Shop Data Currently",
-        operations: ["Edit", "Reset Password"],
+        operations: ["Edit", "Reset Password", "Delete"],
         columns: [
             { title: "Shop Name", dataIndex: "name", width: 220 },
             { title: "Address", dataIndex: "address", width: 360 },
@@ -82,7 +80,7 @@ const configs = {
     2: {
         endpoint: "/groomers",
         empty: "No Groomer Data Currently",
-        operations: ["Edit", "Modify Booking"],
+        operations: ["Edit", "Modify Booking", "Delete"],
         columns: [
             { title: "Groomer Name", dataIndex: "name", width: 180 },
             { title: "Groomer Type", dataIndex: "type", width: 180 },
@@ -94,7 +92,7 @@ const configs = {
     3: {
         endpoint: "/banners",
         empty: "No Banner Data Currently",
-        operations: ["Edit", "Reset Password"],
+        operations: ["Edit", "Reset Password", "Delete"],
         columns: [
             { title: "Banner Title", dataIndex: "name", width: 220 },
             { title: "Description", dataIndex: "description", width: 280 },
@@ -106,7 +104,7 @@ const configs = {
     4: {
         endpoint: "/products",
         empty: "No Product Data Currently",
-        operations: ["Edit", "Images", "Size"],
+        operations: ["Edit", "Images", "Size", "Delete"],
         columns: [
             { title: "Product Name", dataIndex: "name", width: 420 },
             { title: "Thumbnail", dataIndex: "image", width: 140 },
@@ -117,7 +115,7 @@ const configs = {
     5: {
         endpoint: "/services",
         empty: "No Service Data Currently",
-        operations: ["Edit"],
+        operations: ["Edit", "Delete"],
         columns: [
             { title: "Service Name", dataIndex: "name", width: 280 },
             { title: "Pet Category", dataIndex: "category", width: 150 },
@@ -130,7 +128,7 @@ const configs = {
     6: {
         endpoint: "/appointments",
         empty: "No Appointment Data Currently",
-        operations: ["Edit", "Reset Password"],
+        operations: ["Edit", "Reset Password", "Delete"],
         columns: [
             { title: "Appointment Name", dataIndex: "name", width: 320 },
             { title: "Appointment Address", dataIndex: "address", width: 360 },
@@ -140,7 +138,7 @@ const configs = {
     7: {
         endpoint: "/users",
         empty: "No User Data Currently",
-        operations: ["Edit", "Reset Password"],
+        operations: ["Edit", "Reset Password", "Delete"],
         columns: [
             { title: "Account", dataIndex: "username", width: 140 },
             { title: "User Role", dataIndex: "role", width: 150 },
@@ -153,7 +151,7 @@ const configs = {
     8: {
         endpoint: "/pets",
         empty: "No Pet Data Currently",
-        operations: ["Edit", "Activate"],
+        operations: ["Edit", "Activate", "Delete"],
         columns: [
             { title: "Pet Name", dataIndex: "name", width: 260 },
             { title: "Avatar", dataIndex: "avatar", width: 100 },
@@ -167,7 +165,7 @@ const configs = {
     9: {
         endpoint: "/shop-orders",
         empty: "No Order Data Currently",
-        operations: ["Edit", "Next Step"],
+        operations: ["Edit", "Next Step", "Delete"],
         columns: [
             { title: "Order No.", dataIndex: "trackingNumber", width: 210 },
             { title: "Order Address", dataIndex: "address", width: 400 },
@@ -224,6 +222,10 @@ function MainPage({ username, userrole, onLogout }) {
     const [searchValue, setSearchValue] = useState("");
     const [addMenuOpen, setAddMenuOpen] = useState(false);
     const [dashboard, setDashboard] = useState({ users: 0, pets: 0, appointments: 0, revenue: 45678 });
+    const [editor, setEditor] = useState({ open: false, mode: "create", record: null });
+    const [formData, setFormData] = useState({});
+    const [saving, setSaving] = useState(false);
+    const [success, setSuccess] = useState("");
 
     const currentMenu = menuList.find((item) => item.id === activeMenu);
     const config = configs[activeMenu];
@@ -240,7 +242,7 @@ function MainPage({ username, userrole, onLogout }) {
 
     const loadDashboard = async () => {
         const endpoints = ["/users", "/pets", "/appointments", "/shop-orders"];
-        const results = await Promise.allSettled(endpoints.map((endpoint) => axios.get(`${API_URL}${endpoint}`)));
+        const results = await Promise.allSettled(endpoints.map((endpoint) => api.get(endpoint)));
         const count = (index) => results[index].status === "fulfilled" && Array.isArray(results[index].value.data) ? results[index].value.data.length : 0;
         const orderData = results[3].status === "fulfilled" && Array.isArray(results[3].value.data) ? results[3].value.data : [];
         const revenue = orderData.reduce((sum, item) => sum + Number(item.total || item.amount || item.price || 0), 0);
@@ -263,20 +265,10 @@ function MainPage({ username, userrole, onLogout }) {
         setLoading(true);
         setError("");
         try {
-            const res = await axios.get(`${API_URL}${target.endpoint}`);
+            const res = await api.get(target.endpoint);
             let rows = Array.isArray(res.data) ? res.data : [];
 
-            if (menuId === 5) {
-                rows = rows.flatMap((service) => (service.prices || []).map((price) => ({
-                    ...price,
-                    id: price.id,
-                    service_id: service.id,
-                    name: service.name,
-                    type: service.type,
-                    description: service.description,
-                    image: service.image,
-                })));
-            }
+
 
             setDataList(rows);
             setCurrentPage(1);
@@ -313,19 +305,187 @@ function MainPage({ username, userrole, onLogout }) {
         setSelectedIds((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]);
     };
 
-    const handleAdd = () => alert(`Add new ${currentMenu?.name || "record"}`);
+    const editableFields = useMemo(() => {
+        const byMenu = {
+            1: [
+                { key: "name", label: "Shop Name", type: "text" }, { key: "address", label: "Address", type: "text" },
+                { key: "longitude", label: "Longitude", type: "text" }, { key: "latitude", label: "Latitude", type: "text" },
+                { key: "contact", label: "Contact", type: "text" }, { key: "openingTime", source: "openingTime", label: "Opening Time", type: "text" },
+                { key: "closingTime", source: "closingTime", label: "Closing Time", type: "text" }, { key: "description", label: "Description", type: "textarea" },
+                ...(editor.mode === "create" ? [{ key: "image", label: "Image URL", type: "text" }] : []),
+            ],
+            2: [
+                { key: "shopId", label: "Shop ID", type: "number" }, { key: "name", label: "Groomer Name", type: "text" },
+                { key: "_type", source: "_type", label: "Groomer Type", type: "number" }, { key: "experience", label: "Experience (Yr)", type: "number" },
+                { key: "customers", label: "Served Customers", type: "number" }, { key: "description", label: "Description", type: "textarea" },
+                ...(editor.mode === "create" ? [{ key: "avatar", label: "Avatar URL", type: "text" }, { key: "price", label: "Price", type: "number" }] : []),
+            ],
+            3: [
+                { key: editor.mode === "create" ? "shopId" : "shopId", source: "shopId", label: "Shop ID", type: "number" },
+                { key: "title", label: "Banner Title", type: "text" }, { key: "description", label: "Description", type: "textarea" },
+                { key: "image", label: "Image URL", type: "text" }, { key: "url", label: "Target URL", type: "text" },
+                { key: "activationStatus", source: "activationStatus", label: "Activation Status", type: "number" }, { key: "sortOrder", source: "sortOrder", label: "Sort Order", type: "number" },
+            ],
+            4: [
+                { key: "category", label: "Product Category", type: "number" }, { key: "_type", source: "_type", label: "Product Type", type: "number" },
+                { key: "name", label: "Product Name", type: "text" }, { key: "nameZh", source: "nameZh", label: "Chinese Name", type: "text" },
+                { key: "description", label: "Description", type: "textarea" },
+            ],
+            5: [
+                { key: "_type", source: "_type", label: "Service Type", type: "number" }, { key: "name", label: "Service Name", type: "text" },
+                { key: "image", label: "Image URL", type: "text" }, { key: "description", label: "Description", type: "textarea" },
+            ],
+            6: editor.mode === "create" ? [
+                { key: "userId", label: "User ID", type: "number" }, { key: "petId", label: "Pet ID", type: "number" },
+                { key: "shopId", label: "Shop ID", type: "number" }, { key: "groomerId", label: "Groomer ID", type: "number" },
+                { key: "servicePriceIds", label: "Service Price IDs (comma separated)", type: "text", array: true },
+                { key: "startAt", label: "Start At (ISO 8601)", type: "datetime-local", date: true }, { key: "notes", label: "Notes", type: "textarea", optional: true },
+            ] : [{ key: "notes", label: "Notes", type: "textarea", optional: true }],
+            7: editor.mode === "create" ? [
+                { key: "username", label: "Account", type: "text" }, { key: "password", label: "Password", type: "password" },
+                { key: "role", label: "Role", type: "number" }, { key: "shopId", label: "Shop ID", type: "number" }, { key: "avatar", label: "Avatar URL", type: "text" },
+                { key: "mobile", label: "Mobile", type: "text" }, { key: "email", label: "Email", type: "email" },
+                { key: "firstName", label: "First Name", type: "text" }, { key: "lastName", label: "Last Name", type: "text" }, { key: "balance", label: "Balance", type: "number" },
+            ] : [
+                { key: "username", label: "Account", type: "text", optional: true }, { key: "role", label: "Role", type: "number", optional: true },
+                { key: "shopId", source: "shopId", label: "Shop ID", type: "number", optional: true }, { key: "avatar", label: "Avatar URL", type: "text", optional: true },
+                { key: "mobile", label: "Mobile", type: "text", optional: true }, { key: "email", label: "Email", type: "email", optional: true },
+                { key: "firstName", source: "firstName", label: "First Name", type: "text", optional: true }, { key: "lastName", source: "lastName", label: "Last Name", type: "text", optional: true },
+                { key: "balance", label: "Balance", type: "number", optional: true },
+            ],
+            8: [
+                { key: "userId", label: "User ID", type: "number" }, { key: "avatar", label: "Avatar URL", type: "text" }, { key: "name", label: "Pet Name", type: "text" },
+                { key: "gender", label: "Gender", type: "number" }, { key: "category", label: "Pet Category", type: "number" }, { key: "furType", source: "furType", label: "Fur Type", type: "number" },
+                { key: "birthday", label: "Birthday", type: "date" }, { key: "activationStatus", source: "activationStatus", label: "Activation Status", type: "number" },
+            ],
+            9: editor.mode === "create" ? [
+                { key: "userId", label: "User ID", type: "number" }, { key: "addressId", label: "Address ID", type: "number" },
+                { key: "products", label: "Products JSON", type: "textarea", json: true, placeholder: '[{"productId":1,"stockId":1,"quantity":1,"price":100}]' },
+            ] : [
+                { key: "userId", source: "userId", label: "User ID", type: "number" }, { key: "addressId", source: "addressId", label: "Address ID", type: "number" },
+                { key: "time", label: "Time", type: "text" }, { key: "totalPrice", source: "totalPrice", label: "Total Price", type: "text" },
+                { key: "paymentStatus", source: "paymentStatus", label: "Payment Status", type: "number" }, { key: "orderStatus", source: "orderStatus", label: "Order Status", type: "number" },
+                { key: "trackingNumber", source: "trackingNumber", label: "Tracking Number", type: "number" },
+            ],
+        };
+        return byMenu[activeMenu] || [];
+    }, [activeMenu, editor.mode]);
 
-    const handleBatchDelete = () => {
-        if (!selectedIds.length) return alert("Please select data to delete first.");
-        if (!window.confirm(`Confirm deleting ${selectedIds.length} selected item(s)?`)) return;
-        setDataList((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
-        setSelectedIds([]);
+    const openEditor = (mode, record = null) => {
+        const initial = {};
+        editableFields.forEach((field) => {
+            initial[field.key] = record?.[field.source || field.key] ?? "";
+        });
+        if (activeMenu === 7 && record) {
+            initial.name = `${record.first_name || ""} ${record.last_name || ""}`.trim() || record.name || "";
+        }
+        setFormData(initial);
+        setEditor({ open: true, mode, record });
+        setError("");
+        setSuccess("");
+        setAddMenuOpen(false);
     };
 
-    const handleOperation = (data, operation) => {
-        if (operation === "Edit") alert(`Edit: ${data.name || data.username || data.id}`);
-        else if (operation === "Reset Password") window.confirm(`Reset password for ${data.account || data.username || data.name || data.id}?`) && alert("Password has been reset.");
-        else if (operation === "Next Step") goToNextStep(data);
+    const handleAdd = () => {
+        if (activeMenu === 0) return changeMenu(7);
+        openEditor("create");
+    };
+
+    const buildPayload = () => {
+        const payload = { ...formData };
+        editableFields.forEach((field) => {
+            if (field.type === "number" && payload[field.key] !== "") payload[field.key] = Number(payload[field.key]);
+            if (field.array && typeof payload[field.key] === "string") payload[field.key] = payload[field.key].split(",").map((v) => Number(v.trim())).filter(Number.isFinite);
+            if (field.json && typeof payload[field.key] === "string") payload[field.key] = JSON.parse(payload[field.key] || "[]");
+            if (field.date && payload[field.key]) payload[field.key] = new Date(payload[field.key]).toISOString();
+            if (field.optional && payload[field.key] === "") delete payload[field.key];
+        });
+        return payload;
+    };
+
+    const saveRecord = async (event) => {
+        event.preventDefault();
+        if (!config) return;
+        setSaving(true);
+        setError("");
+        setSuccess("");
+        try {
+            const payload = buildPayload();
+            if (editor.mode === "create") {
+                await api.post(config.endpoint, payload);
+                setSuccess("Created successfully.");
+            } else {
+                const id = editor.record?.id;
+                if (!id) throw new Error("Missing record id.");
+                await api.put(`${config.endpoint}/${id}`, payload);
+                setSuccess("Updated successfully.");
+            }
+            setEditor({ open: false, mode: "create", record: null });
+            await fetchData(activeMenu);
+        } catch (err) {
+            console.error(err);
+            setError(getErrorMessage(err, `Unable to ${editor.mode} record.`));
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const deleteRecord = async (data) => {
+        if (!config || !data?.id) return;
+        if (!window.confirm(`Delete ${data.name || data.username || data.trackingNumber || data.id}? This action cannot be undone.`)) return;
+        setLoading(true);
+        setError("");
+        setSuccess("");
+        try {
+            await api.delete(`${config.endpoint}/${data.id}`);
+            setSuccess("Deleted successfully.");
+            await fetchData(activeMenu);
+        } catch (err) {
+            console.error(err);
+            setError(getErrorMessage(err, "Unable to delete record."));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBatchDelete = async () => {
+        if (!selectedIds.length) return alert("Please select data to delete first.");
+        if (!window.confirm(`Confirm deleting ${selectedIds.length} selected item(s)? This action cannot be undone.`)) return;
+        setLoading(true);
+        setError("");
+        setSuccess("");
+        try {
+            const results = await Promise.allSettled(selectedIds.map((id) => api.delete(`${config.endpoint}/${id}`)));
+            const failed = results.filter((result) => result.status === "rejected");
+            if (failed.length) setError(`${failed.length} item(s) could not be deleted.`);
+            else setSuccess(`${selectedIds.length} item(s) deleted successfully.`);
+            setSelectedIds([]);
+            await fetchData(activeMenu);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleOperation = async (data, operation) => {
+        if (operation === "Edit") openEditor("edit", data);
+        else if (operation === "Delete") await deleteRecord(data);
+        else if (operation === "Reset Password") {
+            if (!window.confirm(`Reset password for ${data.account || data.username || data.name || data.id}?`)) return;
+            try {
+                await api.post(`${config.endpoint}/${data.id}/reset-password`);
+                setSuccess("Password has been reset.");
+            } catch (err) {
+                setError(getErrorMessage(err, "Unable to reset password."));
+            }
+        } else if (operation === "Activate") {
+            try {
+                await api.put(`${config.endpoint}/${data.id}`, { ...data, activationStatus: 1 });
+                setSuccess("Activated successfully.");
+                await fetchData(activeMenu);
+            } catch (err) {
+                setError(getErrorMessage(err, "Unable to activate record."));
+            }
+        } else if (operation === "Next Step") goToNextStep(data);
         else alert(`${operation}: ${data.name || data.id}`);
     };
 
@@ -333,12 +493,12 @@ function MainPage({ username, userrole, onLogout }) {
         if (data.paymentStatus == 1 && (data.orderStatus === 0 || data.orderStatus === 1)) {
             setError("");
             try {
-                const res = await axios.post(`${API_URL}/shop-orders/process/${data.id}`);
+                await api.post(`/shop-orders/process/${data.id}`);
                 fetchData(activeMenu);
             } catch (err) {
                 console.error(err);
                 setDataList([]);
-                setError("Unable to load data. Please check whether the API service is running.");
+                setError(getErrorMessage(err, "Unable to process order."));
             } finally {
                 setLoading(false);
             }
@@ -420,11 +580,12 @@ function MainPage({ username, userrole, onLogout }) {
                         <div className="page-heading-row"><div><h1>{currentMenu?.name}</h1><p>Manage your YiPet {currentMenu?.name.toLowerCase()} data.</p></div><div className="table-actions"><button className="outline-danger" type="button" onClick={handleBatchDelete}><Icon name="trash" size={17} />Batch Delete</button><button className="primary-button" type="button" onClick={handleAdd}><Icon name="plus" size={17} />Add New</button></div></div>
                         <div className="data-card">
                             {error && <div className="error-message">{error}</div>}
+                            {success && <div className="success-message">{success}</div>}
                             <div className="table-wrapper">
                                 <table className="store-table">
                                     <thead><tr><th className="checkbox-column"><input type="checkbox" checked={isAllSelected} onChange={handleSelectAll} /></th>{config?.columns.map((column) => <th key={column.dataIndex} style={{ width: column.width }}>{column.title}</th>)}<th className="operation-column">Operate</th></tr></thead>
                                     <tbody>
-                                        {loading ? <tr><td colSpan={(config?.columns.length || 0) + 2} className="empty-table">Loading...</td></tr> : currentList.length ? currentList.map((data) => <tr key={data.id}><td className="checkbox-column"><input type="checkbox" checked={selectedIds.includes(data.id)} onChange={() => handleSelectOne(data.id)} /></td>{config.columns.map((column) => <td key={column.dataIndex}>{["avatar", "image"].includes(column.dataIndex) && data[column.dataIndex] ? <img className="column-img" src={data[column.dataIndex]} alt="" /> : formatValue(data, column)}</td>)}<td><div className="operation-buttons">{config.operations.map((operation) => operation === "Activate" && data.activation_status !== 0 ? null : <button key={operation} type="button" className={operation === "Edit" ? "edit-button" : operation === "Images" ? "images-button" : operation === "Size" || operation === "Activate" ? "activate-button" : "default-button"} onClick={() => handleOperation(data, operation)}>{operation === "Edit" && <Icon name="edit" size={14} />} {operation}</button>)}</div></td></tr>) : <tr><td colSpan={(config?.columns.length || 0) + 2} className="empty-table">{config?.empty}</td></tr>}
+                                        {loading ? <tr><td colSpan={(config?.columns.length || 0) + 2} className="empty-table">Loading...</td></tr> : currentList.length ? currentList.map((data) => <tr key={data.id}><td className="checkbox-column"><input type="checkbox" checked={selectedIds.includes(data.id)} onChange={() => handleSelectOne(data.id)} /></td>{config.columns.map((column) => <td key={column.dataIndex}>{["avatar", "image"].includes(column.dataIndex) && data[column.dataIndex] ? <img className="column-img" src={data[column.dataIndex]} alt="" /> : formatValue(data, column)}</td>)}<td><div className="operation-buttons">{config.operations.map((operation) => operation === "Activate" && data.activation_status !== 0 ? null : <button key={operation} type="button" className={operation === "Edit" ? "edit-button" : operation === "Delete" ? "delete-button" : operation === "Images" ? "images-button" : operation === "Size" || operation === "Activate" ? "activate-button" : "default-button"} onClick={() => handleOperation(data, operation)}>{operation === "Edit" && <Icon name="edit" size={14} />} {operation}</button>)}</div></td></tr>) : <tr><td colSpan={(config?.columns.length || 0) + 2} className="empty-table">{config?.empty}</td></tr>}
                                     </tbody>
                                 </table>
                             </div>
@@ -433,6 +594,34 @@ function MainPage({ username, userrole, onLogout }) {
                     </section>
                 )}
             </main>
+            {editor.open && (
+                <div className="crud-modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !saving && setEditor({ open: false, mode: "create", record: null })}>
+                    <section className="crud-modal" role="dialog" aria-modal="true" aria-label={`${editor.mode} record`}>
+                        <div className="crud-modal-head">
+                            <div><span>{editor.mode === "create" ? "Create" : "Update"}</span><h2>{currentMenu?.name}</h2></div>
+                            <button type="button" onClick={() => setEditor({ open: false, mode: "create", record: null })} disabled={saving}>×</button>
+                        </div>
+                        <form onSubmit={saveRecord}>
+                            <div className="crud-form-grid">
+                                {editableFields.map((field) => (
+                                    <label key={field.key} className={field.type === "textarea" ? "full-width" : ""}>
+                                        <span>{field.label}</span>
+                                        {field.type === "textarea" ? (
+                                            <textarea required={!field.optional} placeholder={field.placeholder || ""} value={formData[field.key] ?? ""} onChange={(event) => setFormData((prev) => ({ ...prev, [field.key]: event.target.value }))} rows="4" />
+                                        ) : (
+                                            <input required={!field.optional} type={field.type} value={formData[field.key] ?? ""} onChange={(event) => setFormData((prev) => ({ ...prev, [field.key]: event.target.value }))} />
+                                        )}
+                                    </label>
+                                ))}
+                            </div>
+                            <div className="crud-modal-actions">
+                                <button type="button" className="crud-cancel" onClick={() => setEditor({ open: false, mode: "create", record: null })} disabled={saving}>Cancel</button>
+                                <button type="submit" className="primary-button" disabled={saving}>{saving ? "Saving..." : editor.mode === "create" ? "Create" : "Save Changes"}</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+            )}
         </div>
     );
 }

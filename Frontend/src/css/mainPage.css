@@ -1129,3 +1129,91 @@ button {
     width: 235px
   }
 }
+.success-message {
+  margin: 16px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  background: #effaf2;
+  color: #168b45;
+  font-size: 12px;
+}
+
+.delete-button { background: #dc5c5c; }
+.delete-button:hover { background: #c94c4c; }
+
+.crud-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(16, 24, 20, .42);
+  backdrop-filter: blur(3px);
+}
+
+.crud-modal {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 56px);
+  overflow: auto;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(15, 35, 22, .22);
+}
+
+.crud-modal-head {
+  padding: 22px 24px 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid #edf0ee;
+}
+
+.crud-modal-head span {
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.crud-modal-head h2 { margin: 4px 0 0; font-size: 21px; }
+.crud-modal-head button { border: 0; background: transparent; color: #7c8491; font-size: 28px; line-height: 1; }
+.crud-modal form { padding: 22px 24px 24px; }
+
+.crud-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+}
+
+.crud-form-grid label { display: flex; flex-direction: column; gap: 7px; }
+.crud-form-grid label.full-width { grid-column: 1 / -1; }
+.crud-form-grid label > span { color: #59616c; font-size: 12px; font-weight: 600; }
+.crud-form-grid input,
+.crud-form-grid textarea {
+  width: 100%;
+  border: 1px solid #dfe5e1;
+  border-radius: 9px;
+  outline: 0;
+  background: #fff;
+  color: #252a31;
+  font: inherit;
+  font-size: 13px;
+}
+.crud-form-grid input { height: 42px; padding: 0 12px; }
+.crud-form-grid textarea { padding: 11px 12px; resize: vertical; }
+.crud-form-grid input:focus,
+.crud-form-grid textarea:focus { border-color: #69cc8d; box-shadow: 0 0 0 3px rgba(24, 185, 86, .09); }
+
+.crud-modal-actions {
+  margin-top: 24px;
+  padding-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #edf0ee;
+}
+.crud-modal-actions button { min-height: 40px; padding: 0 17px; border-radius: 9px; font-weight: 600; }
+.crud-cancel { border: 1px solid #e0e5e2; background: #fff; color: #626b79; }
+.crud-modal-actions button:disabled { opacity: .55; cursor: not-allowed; }
