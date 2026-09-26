@@ -2,6 +2,8 @@ import api, { getErrorMessage } from "../api";
 import { useEffect, useMemo, useRef, useState } from "react";
 import "../css/mainPage.css";
 
+import AIChat from "./AIChat";
+
 import logo from "../assets/imgs/login_logo.png";
 import admin from "../assets/imgs/supermanager.png";
 import avatar from "../assets/imgs/headimg.png";
@@ -375,6 +377,7 @@ const getAppointmentServiceName = (appointment, lookups) => {
 
 function MainPage({ username, userrole, onLogout }) {
     const [activeMenu, setActiveMenu] = useState(0);
+    const [aiPageOpen, setAiPageOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem("sidebarCollapsed") === "1");
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -673,16 +676,32 @@ function MainPage({ username, userrole, onLogout }) {
     }, []);
 
     const changeMenu = (menuId) => {
-        if (!canAccessMenu(menuId)) { showToast("error", "You do not have permission to access this section."); return; }
+        if (!canAccessMenu(menuId)) {
+            showToast(
+                "error",
+                "You do not have permission to access this section."
+            );
+            return;
+        }
+
+        setAiPageOpen(false);
+
         setActiveMenu(menuId);
         setMobileSidebarOpen(false);
         setProfileMenuOpen(false);
         setSearchValue("");
         setFilters({});
-        setSortConfig({ key: "id", direction: "desc" });
+        setSortConfig({
+            key: "id",
+            direction: "desc",
+        });
         setCurrentPage(1);
+
         fetchData(menuId);
-        if (menuId !== 0) loadLookups();
+
+        if (menuId !== 0) {
+            loadLookups();
+        }
     };
 
     const updateFilter = (key, value) => { setFilters((prev) => ({ ...prev, [key]: value })); setCurrentPage(1); };
@@ -1049,9 +1068,35 @@ function MainPage({ username, userrole, onLogout }) {
                             <button type="button" className="logout-menu-item" onClick={async () => { setProfileMenuOpen(false); if (await requestConfirm("Sign out of YiPet Admin?", { title: "Sign out", danger: false })) onLogout(); }}><Icon name="logout" size={16} />Sign out</button>
                         </div>}
                     </div>
-                    <div className="ai-card">
-                        <div className="ai-copy"><strong>YiPet AI<br />Assistant</strong><span>Smart support for you<br />and your pet</span><button type="button">Try Now →</button></div>
-                        <div className="ai-robot">🤖</div>
+                    <div className={`ai-card ${aiPageOpen ? "active" : ""}`}>
+                        <div className="ai-copy">
+                            <strong>
+                                YiPet AI
+                                <br />
+                                Assistant
+                            </strong>
+
+                            <span>
+                                Smart support for your
+                                <br />
+                                YiPet platform
+                            </span>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setAiPageOpen(true);
+                                    setMobileSidebarOpen(false);
+                                    setProfileMenuOpen(false);
+                                }}
+                            >
+                                {aiPageOpen ? "AI Chat →" : "Try Now →"}
+                            </button>
+                        </div>
+
+                        <div className="ai-robot">
+                            🤖
+                        </div>
                     </div>
                 </div>
             </aside>
@@ -1059,7 +1104,12 @@ function MainPage({ username, userrole, onLogout }) {
                 <header className="top-header">
                     <button className="header-icon-button" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}><Icon name="menu" /></button>
                 </header>
-                {activeMenu === 0 ? (
+                {aiPageOpen ? (
+                    <AIChat
+                        username={username}
+                        onClose={() => setAiPageOpen(false)}
+                    />
+                ) : activeMenu === 0 ? (
                     <section className="dashboard-content">
                         <div className="welcome-banner">
                             <div><h1>Welcome back, {username || "Admin"}! <span>👋</span></h1><p>Here’s what’s happening with your YiPet platform today.</p></div>
