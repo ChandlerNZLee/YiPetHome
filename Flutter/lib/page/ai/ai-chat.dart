@@ -1,4 +1,5 @@
 // lib/page/ai/ai-chat.dart
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -18,37 +19,24 @@ class AIChatPage extends StatefulWidget {
 }
 
 class _AIChatPageState extends State<AIChatPage> {
-  static const Color background = Color(0xFFFCFDFB);
-
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
 
   final stt.SpeechToText _speech = stt.SpeechToText();
-
-  bool _isListening = false;
+  final ImagePicker _picker = ImagePicker();
 
   final List<AiChatMessage> _messages = [];
 
-  final List<AiRecommendedProduct> _products = const [
-    AiRecommendedProduct(
-      name: 'Royal Canin',
-      subtitle: 'Sensitive',
-      price: 39.09,
-      imagePath: 'assets/images/ai_chat/royal-canin.png',
-    ),
-    AiRecommendedProduct(
-      name: 'Hill’s Science',
-      subtitle: 'Diet Id',
-      price: 42.99,
-      imagePath: 'assets/images/ai_chat/hills-science.png',
-    ),
-    AiRecommendedProduct(
-      name: 'Wellness',
-      subtitle: 'Sensitive',
-      price: 45.50,
-      imagePath: 'assets/images/ai_chat/wellness.png',
-    ),
+  bool _isListening = false;
+  bool _isSending = false;
+
+  File? selectedImage;
+
+  final List<String> _suggestions = const [
+    'What can I feed my dog?',
+    'How often should I groom my pet?',
+    'Recommend pet products',
   ];
 
   @override
@@ -58,68 +46,11 @@ class _AIChatPageState extends State<AIChatPage> {
     final initial = widget.initialMessage?.trim();
 
     if (initial != null && initial.isNotEmpty) {
-      _messages.add(AiChatMessage(type: AiChatMessageType.user, text: initial));
-
-      _messages.add(
-        const AiChatMessage(
-          type: AiChatMessageType.ai,
-          text:
-              'For dogs with a sensitive stomach, I recommend:\n\n'
-              '✓  Boiled chicken and rice\n'
-              '✓  Pumpkin puree\n'
-              '✓  Probiotics\n'
-              '✓  Avoid dairy and greasy food',
-          showProducts: true,
-        ),
-      );
-    } else {
-      _messages.add(
-        const AiChatMessage(
-          type: AiChatMessageType.user,
-          text: 'What can I feed my dog\nfor sensitive stomach?',
-        ),
-      );
-
-      _messages.add(
-        const AiChatMessage(
-          type: AiChatMessageType.ai,
-          text:
-              'For dogs with a sensitive\n'
-              'stomach, I recommend:\n\n'
-              '✓  Boiled chicken and rice\n'
-              '✓  Pumpkin puree\n'
-              '✓  Probiotics\n'
-              '✓  Avoid dairy and greasy food',
-          showProducts: true,
-        ),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _controller.text = initial;
+        _sendMessage();
+      });
     }
-  }
-
-  final ImagePicker _picker = ImagePicker();
-
-  File? selectedImage;
-
-  Future<void> pickImage() async {
-    final XFile? image = await _picker.pickImage(
-      source: ImageSource.gallery,
-
-      imageQuality: 90,
-    );
-
-    if (image == null) {
-      return;
-    }
-
-    setState(() {
-      selectedImage = File(image.path);
-    });
-  }
-
-  void removeImage() {
-    setState(() {
-      selectedImage = null;
-    });
   }
 
   @override
@@ -127,8 +58,14 @@ class _AIChatPageState extends State<AIChatPage> {
     _controller.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
+    _speech.stop();
+
     super.dispose();
   }
+
+  // ============================================================
+  // NAVIGATION
+  // ============================================================
 
   void _goBack() {
     FocusScope.of(context).unfocus();
@@ -138,63 +75,131 @@ class _AIChatPageState extends State<AIChatPage> {
     }
   }
 
+  // ============================================================
+  // IMAGE
+  // ============================================================
+
+  Future<void> pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 90,
+      );
+
+      if (image == null || !mounted) return;
+
+      setState(() {
+        selectedImage = File(image.path);
+      });
+
+      _focusNode.requestFocus();
+    } catch (e) {
+      if (!mounted) return;
+
+      _showError('Unable to select image.');
+    }
+  }
+
+  void removeImage() {
+    setState(() {
+      selectedImage = null;
+    });
+  }
+
+  // ============================================================
+  // SEND MESSAGE
+  // ============================================================
+
   Future<void> _sendMessage() async {
+    if (_isSending) return;
+
     final value = _controller.text.trim();
-
-    if (value.isEmpty && selectedImage == null) return;
-
     final File? image = selectedImage;
 
-    if (image != null) {
-      final String message = value.isNotEmpty
-          ? value
-          : 'Please analyze this image.';
-      setState(() {
-        _messages.add(
-          AiChatMessage(
-            type: AiChatMessageType.user,
-            text: message,
-            image: image,
-          ),
-        );
-        selectedImage = null;
-      });
-    } else {
-      setState(() {
-        _messages.add(AiChatMessage(type: AiChatMessageType.user, text: value));
-      });
+    if (value.isEmpty && image == null) {
+      return;
     }
+
+    final String message = value.isNotEmpty
+        ? value
+        : 'Please analyze this image.';
+
+    setState(() {
+      _messages.add(
+        AiChatMessage(
+          type: AiChatMessageType.user,
+          text: message,
+          image: image,
+        ),
+      );
+
+      selectedImage = null;
+      _isSending = true;
+    });
 
     _controller.clear();
     FocusScope.of(context).unfocus();
 
-    Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+    _scrollToBottomDelayed();
 
     try {
-      final res = image != null
+      final response = image != null
           ? await AIService.instance.sendVisionMessage(value, image)
           : await AIService.instance.sendMessage(value);
 
+      if (!mounted) return;
+
       setState(() {
         _messages.add(
-          AiChatMessage(type: AiChatMessageType.ai, text: res.message),
+          AiChatMessage(type: AiChatMessageType.ai, text: response.message),
         );
       });
-
-      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     } on ApiException catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.message)));
+      setState(() {
+        _messages.add(
+          AiChatMessage(type: AiChatMessageType.error, text: e.message),
+        );
+      });
     } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _messages.add(
+          const AiChatMessage(
+            type: AiChatMessageType.error,
+            text: 'Sorry, I couldn\'t connect to YiPet AI. Please try again.',
+          ),
+        );
+      });
+    } finally {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        setState(() {
+          _isSending = false;
+        });
+
+        _scrollToBottomDelayed();
       }
     }
+  }
+
+  void _sendSuggestion(String value) {
+    if (_isSending) return;
+
+    _controller.text = value;
+
+    _controller.selection = TextSelection.collapsed(offset: value.length);
+
+    _sendMessage();
+  }
+
+  // ============================================================
+  // SCROLL
+  // ============================================================
+
+  void _scrollToBottomDelayed() {
+    Future.delayed(const Duration(milliseconds: 120), _scrollToBottom);
   }
 
   void _scrollToBottom() {
@@ -202,12 +207,18 @@ class _AIChatPageState extends State<AIChatPage> {
 
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOut,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
     );
   }
 
+  // ============================================================
+  // VOICE
+  // ============================================================
+
   Future<void> _toggleVoice() async {
+    if (_isSending) return;
+
     if (_isListening) {
       await _stopVoice();
       return;
@@ -215,8 +226,6 @@ class _AIChatPageState extends State<AIChatPage> {
 
     final available = await _speech.initialize(
       onStatus: (status) {
-        debugPrint('Speech status: $status');
-
         if (status == 'done' || status == 'notListening') {
           if (mounted) {
             setState(() {
@@ -226,28 +235,20 @@ class _AIChatPageState extends State<AIChatPage> {
         }
       },
       onError: (error) {
-        debugPrint('Speech error: $error');
+        if (!mounted) return;
 
-        if (mounted) {
-          setState(() {
-            _isListening = false;
-          });
+        setState(() {
+          _isListening = false;
+        });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Speech recognition failed: ${error.errorMsg}'),
-            ),
-          );
-        }
+        _showError('Speech recognition failed: ${error.errorMsg}');
       },
     );
 
     if (!available) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Speech recognition is not available.')),
-      );
+      _showError('Speech recognition is not available.');
 
       return;
     }
@@ -265,9 +266,7 @@ class _AIChatPageState extends State<AIChatPage> {
         setState(() {
           _controller.text = text;
 
-          _controller.selection = TextSelection.collapsed(
-            offset: _controller.text.length,
-          );
+          _controller.selection = TextSelection.collapsed(offset: text.length);
         });
       },
     );
@@ -285,121 +284,54 @@ class _AIChatPageState extends State<AIChatPage> {
     _focusNode.requestFocus();
   }
 
-  void _openProduct(AiRecommendedProduct product) {
+  // ============================================================
+  // ERROR
+  // ============================================================
+
+  void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(product.name),
-        duration: const Duration(seconds: 1),
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
 
+  // ============================================================
+  // UI
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    final horizontalPadding = media.size.width * 0.055;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      backgroundColor: background,
+      backgroundColor: _AiColors.background,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         bottom: false,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                12,
-                horizontalPadding,
-                0,
-              ),
-              child: AiChatHeader(onBackTap: _goBack),
-            ),
-            const SizedBox(height: 8),
+            // Header
+            AiChatHeader(onBackTap: _goBack),
+
+            const Divider(height: 1, thickness: 1, color: _AiColors.border),
+
+            // Messages
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: EdgeInsets.fromLTRB(
-                  horizontalPadding,
-                  14,
-                  horizontalPadding,
-                  24,
-                ),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 22),
-                    child: message.type == AiChatMessageType.user
-                        ? UserMessageBubble(
-                            message: message.text,
-                            image: message.image,
-                          )
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AiMessageBubble(message: message.text),
-
-                              if (message.showProducts) ...[
-                                const SizedBox(height: 18),
-
-                                AiProductRecommendationSection(
-                                  products: _products,
-                                  onProductTap: _openProduct,
-                                ),
-                              ],
-                            ],
-                          ),
-                  );
-                },
-              ),
+              child: _messages.isEmpty ? _buildWelcome() : _buildMessages(),
             ),
+
+            // Selected image
             if (selectedImage != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(22, 0, 22, 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          selectedImage!,
-                          width: 90,
-                          height: 90,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        top: -8,
-                        right: -8,
-                        child: GestureDetector(
-                          onTap: removeImage,
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: const BoxDecoration(
-                              color: Colors.black87,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              SelectedImagePreview(
+                image: selectedImage!,
+                onRemove: removeImage,
               ),
+
+            // Input
             AiChatInputBar(
               controller: _controller,
               focusNode: _focusNode,
@@ -407,13 +339,146 @@ class _AIChatPageState extends State<AIChatPage> {
               onVoiceTap: _toggleVoice,
               onImageTap: pickImage,
               isListening: _isListening,
+              isSending: _isSending,
+              bottomPadding: bottomPadding,
             ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildWelcome() {
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(24, 48, 24, 32),
+        child: Column(
+          children: [
+            // Robot
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                color: _AiColors.primarySoft,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Center(
+                child: Image.asset(
+                  'assets/images/ai_chat/robot-avatar.png',
+                  width: 58,
+                  height: 58,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) {
+                    return const Icon(
+                      Icons.smart_toy_rounded,
+                      size: 42,
+                      color: _AiColors.primary,
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            const Text(
+              'How can I help you?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 25,
+                height: 1.2,
+                fontWeight: FontWeight.w800,
+                color: _AiColors.textPrimary,
+                letterSpacing: -0.5,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Ask YiPet AI anything about your pet, grooming, feeding, products or daily care.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.55,
+                  color: _AiColors.textSecondary,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 36),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Suggested questions',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: _AiColors.textSecondary,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            ..._suggestions.map(
+              (suggestion) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SuggestionCard(
+                  text: suggestion,
+                  onTap: () => _sendSuggestion(suggestion),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessages() {
+    return ListView.builder(
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.fromLTRB(20, 26, 20, 20),
+      itemCount: _messages.length + (_isSending ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (_isSending && index == _messages.length) {
+          return const Padding(
+            padding: EdgeInsets.only(bottom: 22),
+            child: AiTypingBubble(),
+          );
+        }
+
+        final message = _messages[index];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 22),
+          child: switch (message.type) {
+            AiChatMessageType.user => UserMessageBubble(
+              message: message.text,
+              image: message.image,
+            ),
+            AiChatMessageType.ai => AiMessageBubble(message: message.text),
+            AiChatMessageType.error => AiErrorBubble(message: message.text),
+          },
+        );
+      },
+    );
+  }
 }
+
+// ============================================================
+// HEADER
+// ============================================================
 
 class AiChatHeader extends StatelessWidget {
   final VoidCallback onBackTap;
@@ -422,33 +487,85 @@ class AiChatHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 56,
+    return Container(
+      height: 72,
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
           Material(
             color: Colors.transparent,
             child: InkWell(
-              customBorder: const CircleBorder(),
               onTap: onBackTap,
+              borderRadius: BorderRadius.circular(50),
               child: const SizedBox(
                 width: 44,
                 height: 44,
                 child: Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  size: 24,
-                  color: _AiChatColors.textPrimary,
+                  size: 20,
+                  color: _AiColors.textPrimary,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 6),
-          const Text(
-            'Ask AI',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: _AiChatColors.textPrimary,
+
+          const SizedBox(width: 2),
+
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: _AiColors.primarySoft,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Center(
+              child: Image.asset(
+                'assets/images/ai_chat/robot-avatar.png',
+                width: 34,
+                height: 34,
+                errorBuilder: (_, __, ___) {
+                  return const Icon(
+                    Icons.smart_toy_rounded,
+                    size: 24,
+                    color: _AiColors.primary,
+                  );
+                },
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 11),
+
+          const Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'YiPet AI',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: _AiColors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Row(
+                  children: [
+                    _OnlineDot(),
+                    SizedBox(width: 6),
+                    Text(
+                      'AI Assistant',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w500,
+                        color: _AiColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -456,6 +573,93 @@ class AiChatHeader extends StatelessWidget {
     );
   }
 }
+
+class _OnlineDot extends StatelessWidget {
+  const _OnlineDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 7,
+      height: 7,
+      decoration: const BoxDecoration(
+        color: _AiColors.primary,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+// ============================================================
+// SUGGESTION
+// ============================================================
+
+class SuggestionCard extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+
+  const SuggestionCard({super.key, required this.text, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _AiColors.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _AiColors.primarySoft,
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 18,
+                  color: _AiColors.primary,
+                ),
+              ),
+
+              const SizedBox(width: 13),
+
+              Expanded(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: _AiColors.textPrimary,
+                  ),
+                ),
+              ),
+
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: _AiColors.textMuted,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// USER MESSAGE
+// ============================================================
 
 class UserMessageBubble extends StatelessWidget {
   final String message;
@@ -470,37 +674,41 @@ class UserMessageBubble extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
-        constraints: BoxConstraints(maxWidth: width * 0.65),
-        padding: const EdgeInsets.all(8),
+        constraints: BoxConstraints(maxWidth: width * 0.78),
+        padding: image == null
+            ? const EdgeInsets.symmetric(horizontal: 16, vertical: 13)
+            : const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: const Color(0xFFF0F9EA),
-          borderRadius: BorderRadius.circular(12),
+          color: _AiColors.userBubble,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(18),
+            topRight: Radius.circular(18),
+            bottomLeft: Radius.circular(18),
+            bottomRight: Radius.circular(5),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
           children: [
             if (image != null)
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.file(image!, width: 220, fit: BoxFit.cover),
+                borderRadius: BorderRadius.circular(13),
+                child: Image.file(image!, width: 240, fit: BoxFit.cover),
               ),
 
-            if (image != null && message.isNotEmpty) const SizedBox(height: 10),
+            if (image != null && message.isNotEmpty) const SizedBox(height: 6),
 
             if (message.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
+                padding: image != null
+                    ? const EdgeInsets.fromLTRB(10, 7, 10, 8)
+                    : EdgeInsets.zero,
                 child: Text(
                   message,
                   style: const TextStyle(
                     fontSize: 14,
-                    height: 1.45,
-                    fontWeight: FontWeight.w400,
-                    color: _AiChatColors.textPrimary,
+                    height: 1.5,
+                    color: _AiColors.textPrimary,
                   ),
                 ),
               ),
@@ -510,6 +718,10 @@ class UserMessageBubble extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// AI MESSAGE
+// ============================================================
 
 class AiMessageBubble extends StatelessWidget {
   final String message;
@@ -523,54 +735,137 @@ class AiMessageBubble extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Transform.translate(
-          offset: const Offset(0, -10),
+        const AiAvatar(),
+
+        const SizedBox(width: 10),
+
+        Flexible(
           child: Container(
-            width: 36,
-            height: 36,
-            padding: const EdgeInsets.all(4),
+            constraints: BoxConstraints(maxWidth: width * 0.76),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             decoration: BoxDecoration(
               color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE8EEE7)),
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/images/ai_chat/robot-avatar.png',
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) {
-                  return const Icon(
-                    Icons.smart_toy_rounded,
-                    size: 24,
-                    color: _AiChatColors.primary,
-                  );
-                },
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(5),
+                topRight: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
+                bottomRight: Radius.circular(18),
               ),
+              border: Border.all(color: _AiColors.border),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x08000000),
+                  blurRadius: 18,
+                  offset: Offset(0, 5),
+                ),
+              ],
             ),
+            child: _AiMessageText(text: message),
           ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          constraints: BoxConstraints(maxWidth: width * 0.65),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFF0F2EF)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x08000000),
-                blurRadius: 12,
-                offset: Offset(0, 6),
-              ),
-            ],
-          ),
-          child: _AiMessageText(text: message),
         ),
       ],
     );
   }
 }
+
+// ============================================================
+// ERROR MESSAGE
+// ============================================================
+
+class AiErrorBubble extends StatelessWidget {
+  final String message;
+
+  const AiErrorBubble({super.key, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const AiAvatar(),
+
+        const SizedBox(width: 10),
+
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF5F5),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(5),
+                topRight: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
+                bottomRight: Radius.circular(18),
+              ),
+              border: Border.all(color: const Color(0xFFFFDDDD)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 18,
+                  color: Color(0xFFE25454),
+                ),
+
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: Text(
+                    message,
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      height: 1.45,
+                      color: Color(0xFFB34242),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// AI AVATAR
+// ============================================================
+
+class AiAvatar extends StatelessWidget {
+  const AiAvatar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: _AiColors.primarySoft,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Image.asset(
+          'assets/images/ai_chat/robot-avatar.png',
+          width: 31,
+          height: 31,
+          errorBuilder: (_, __, ___) {
+            return const Icon(
+              Icons.smart_toy_rounded,
+              size: 22,
+              color: _AiColors.primary,
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// AI TEXT
+// ============================================================
 
 class _AiMessageText extends StatelessWidget {
   final String text;
@@ -586,30 +881,53 @@ class _AiMessageText extends StatelessWidget {
       children: lines.map((line) {
         final trimmed = line.trim();
 
-        if (trimmed.startsWith('✓')) {
-          final value = trimmed.replaceFirst('✓', '').trim();
+        if (trimmed.isEmpty) {
+          return const SizedBox(height: 7);
+        }
+
+        final isBullet =
+            trimmed.startsWith('✓') ||
+            trimmed.startsWith('•') ||
+            trimmed.startsWith('- ');
+
+        if (isBullet) {
+          String value = trimmed;
+
+          value = value
+              .replaceFirst('✓', '')
+              .replaceFirst('•', '')
+              .replaceFirst(RegExp(r'^-\s*'), '')
+              .trim();
 
           return Padding(
-            padding: const EdgeInsets.only(top: 6, bottom: 4),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: 1),
-                  child: Icon(
+                Container(
+                  width: 19,
+                  height: 19,
+                  margin: const EdgeInsets.only(top: 1),
+                  decoration: const BoxDecoration(
+                    color: _AiColors.primarySoft,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
                     Icons.check_rounded,
-                    size: 16,
-                    color: Color(0xFFFFA90A),
+                    size: 13,
+                    color: _AiColors.primary,
                   ),
                 ),
-                const SizedBox(width: 10),
+
+                const SizedBox(width: 9),
+
                 Expanded(
                   child: Text(
                     value,
                     style: const TextStyle(
                       fontSize: 14,
-                      height: 1.35,
-                      color: _AiChatColors.textPrimary,
+                      height: 1.5,
+                      color: _AiColors.textPrimary,
                     ),
                   ),
                 ),
@@ -618,18 +936,14 @@ class _AiMessageText extends StatelessWidget {
           );
         }
 
-        if (trimmed.isEmpty) {
-          return const SizedBox(height: 4);
-        }
-
         return Padding(
-          padding: const EdgeInsets.only(bottom: 2),
+          padding: const EdgeInsets.only(bottom: 3),
           child: Text(
             line,
             style: const TextStyle(
               fontSize: 14,
-              height: 1.45,
-              color: _AiChatColors.textPrimary,
+              height: 1.55,
+              color: _AiColors.textPrimary,
             ),
           ),
         );
@@ -638,167 +952,180 @@ class _AiMessageText extends StatelessWidget {
   }
 }
 
-class AiProductRecommendationSection extends StatelessWidget {
-  final List<AiRecommendedProduct> products;
-  final ValueChanged<AiRecommendedProduct> onProductTap;
+// ============================================================
+// TYPING
+// ============================================================
 
-  const AiProductRecommendationSection({
+class AiTypingBubble extends StatelessWidget {
+  const AiTypingBubble({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [AiAvatar(), SizedBox(width: 10), _TypingContainer()],
+    );
+  }
+}
+
+class _TypingContainer extends StatefulWidget {
+  const _TypingContainer();
+
+  @override
+  State<_TypingContainer> createState() => _TypingContainerState();
+}
+
+class _TypingContainerState extends State<_TypingContainer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _animation.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 46,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(5),
+          topRight: Radius.circular(18),
+          bottomLeft: Radius.circular(18),
+          bottomRight: Radius.circular(18),
+        ),
+        border: Border.all(color: _AiColors.border),
+      ),
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, _) {
+          final value = _animation.value;
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(3, (index) {
+              final position = ((value * 3) - index).abs();
+
+              final opacity = (1 - position.clamp(0.25, 0.7)).clamp(0.35, 0.85);
+
+              return Container(
+                width: 6,
+                height: 6,
+                margin: EdgeInsets.only(right: index == 2 ? 0 : 5),
+                decoration: BoxDecoration(
+                  color: _AiColors.primary.withValues(alpha: opacity),
+                  shape: BoxShape.circle,
+                ),
+              );
+            }),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ============================================================
+// SELECTED IMAGE
+// ============================================================
+
+class SelectedImagePreview extends StatelessWidget {
+  final File image;
+  final VoidCallback onRemove;
+
+  const SelectedImagePreview({
     super.key,
-    required this.products,
-    required this.onProductTap,
+    required this.image,
+    required this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 18, 0, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF0F2EF)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x07000000),
-            blurRadius: 16,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Text(
-              'Here are some suitable\nproducts:',
-              style: TextStyle(
-                fontSize: 16,
-                height: 1.4,
-                color: _AiChatColors.textPrimary,
+      color: _AiColors.background,
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: _AiColors.border),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(11),
+                child: Image.file(
+                  image,
+                  width: 74,
+                  height: 74,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 280,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(right: 16),
-              itemCount: products.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                return AiRecommendedProductCard(
-                  product: products[index],
-                  onTap: () => onProductTap(products[index]),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
-class AiRecommendedProductCard extends StatelessWidget {
-  final AiRecommendedProduct product;
-  final VoidCallback onTap;
-
-  const AiRecommendedProductCard({
-    super.key,
-    required this.product,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Container(
-          width: 190,
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFF0F1F0)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x06000000),
-                blurRadius: 12,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Center(
-                  child: Image.asset(
-                    product.imagePath,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) {
-                      return const Icon(
-                        Icons.shopping_bag_outlined,
-                        size: 78,
-                        color: _AiChatColors.primary,
-                      );
-                    },
+            Positioned(
+              right: -7,
+              top: -7,
+              child: GestureDetector(
+                onTap: onRemove,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: _AiColors.textPrimary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 14,
+                    color: Colors.white,
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                product.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: _AiChatColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                product.subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: _AiChatColors.primary,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '\$${product.price.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: _AiChatColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class AiChatInputBar extends StatelessWidget {
+// ============================================================
+// INPUT BAR
+// ============================================================
+
+class AiChatInputBar extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
+
   final VoidCallback onSend;
   final VoidCallback onVoiceTap;
   final VoidCallback onImageTap;
+
   final bool isListening;
+  final bool isSending;
+
+  final double bottomPadding;
 
   const AiChatInputBar({
     super.key,
@@ -808,26 +1135,67 @@ class AiChatInputBar extends StatelessWidget {
     required this.onVoiceTap,
     required this.onImageTap,
     required this.isListening,
+    required this.isSending,
+    required this.bottomPadding,
   });
 
   @override
+  State<AiChatInputBar> createState() => _AiChatInputBarState();
+}
+
+class _AiChatInputBarState extends State<AiChatInputBar> {
+  @override
+  void initState() {
+    super.initState();
+
+    widget.controller.addListener(_refresh);
+  }
+
+  @override
+  void didUpdateWidget(covariant AiChatInputBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_refresh);
+      widget.controller.addListener(_refresh);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_refresh);
+
+    super.dispose();
+  }
+
+  void _refresh() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.of(context).padding.bottom;
+    final canSend =
+        widget.controller.text.trim().isNotEmpty && !widget.isSending;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(22, 10, 22, bottom + 12),
-      decoration: const BoxDecoration(color: Color(0xFFFCFDFB)),
+      padding: EdgeInsets.fromLTRB(18, 10, 18, widget.bottomPadding + 12),
+      decoration: const BoxDecoration(
+        color: _AiColors.background,
+        border: Border(top: BorderSide(color: Color(0xFFF1F3F1))),
+      ),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 56),
-        padding: const EdgeInsets.fromLTRB(16, 6, 6, 6),
+        constraints: const BoxConstraints(minHeight: 58),
+        padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFFF0F1F0)),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: _AiColors.border),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x08000000),
-              blurRadius: 28,
+              color: Color(0x0A000000),
+              blurRadius: 24,
               offset: Offset(0, 5),
             ),
           ],
@@ -835,59 +1203,83 @@ class AiChatInputBar extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            // Image
+            InputIconButton(
+              icon: Icons.add_photo_alternate_outlined,
+              onTap: widget.isSending ? null : widget.onImageTap,
+            ),
+
+            const SizedBox(width: 4),
+
+            // Text
             Expanded(
               child: TextField(
-                controller: controller,
-                focusNode: focusNode,
+                controller: widget.controller,
+                focusNode: widget.focusNode,
                 minLines: 1,
-                maxLines: 4,
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (value) => onSend(),
-                cursorColor: _AiChatColors.primary,
+                maxLines: 5,
+                enabled: !widget.isSending,
+                keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
+                cursorColor: _AiColors.primary,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: _AiChatColors.textPrimary,
+                  height: 1.45,
+                  color: _AiColors.textPrimary,
                 ),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
-                  hintText: 'Ask follow up question...',
-                  hintStyle: TextStyle(fontSize: 14, color: Color(0xFFA0A4AA)),
-                ),
-              ),
-            ),
-            Material(
-              color: Colors.transparent,
-              shape: const CircleBorder(),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: onImageTap,
-                child: const SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: Icon(
-                    Icons.add_photo_alternate_outlined,
-                    color: _AiChatColors.primary,
-                    size: 24,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 10,
+                  ),
+                  hintText: 'Message YiPet AI...',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    color: _AiColors.textMuted,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 6),
+
+            const SizedBox(width: 5),
+
+            // Voice
+            if (!canSend)
+              InputIconButton(
+                icon: widget.isListening
+                    ? Icons.stop_rounded
+                    : Icons.mic_none_rounded,
+                active: widget.isListening,
+                onTap: widget.isSending ? null : widget.onVoiceTap,
+              ),
+
+            if (!canSend) const SizedBox(width: 4),
+
+            // Send
             Material(
-              color: _AiChatColors.primary,
-              shape: const CircleBorder(),
+              color: canSend ? _AiColors.primary : _AiColors.primaryDisabled,
+              borderRadius: BorderRadius.circular(16),
               child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: onVoiceTap,
+                onTap: canSend ? widget.onSend : null,
+                borderRadius: BorderRadius.circular(16),
                 child: SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: Icon(
-                    isListening ? Icons.stop_rounded : Icons.mic_none_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  width: 43,
+                  height: 43,
+                  child: widget.isSending
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.arrow_upward_rounded,
+                          size: 21,
+                          color: Colors.white,
+                        ),
                 ),
               ),
             ),
@@ -898,37 +1290,82 @@ class AiChatInputBar extends StatelessWidget {
   }
 }
 
-enum AiChatMessageType { user, ai }
+// ============================================================
+// INPUT ICON
+// ============================================================
+
+class InputIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  final bool active;
+
+  const InputIconButton({
+    super.key,
+    required this.icon,
+    required this.onTap,
+    this.active = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: active ? _AiColors.primarySoft : Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Icon(
+            icon,
+            size: 22,
+            color: onTap == null
+                ? _AiColors.textMuted
+                : active
+                ? _AiColors.primary
+                : _AiColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// MODELS
+// ============================================================
+
+enum AiChatMessageType { user, ai, error }
 
 class AiChatMessage {
   final AiChatMessageType type;
   final String text;
   final File? image;
-  final bool showProducts;
 
-  const AiChatMessage({
-    required this.type,
-    required this.text,
-    this.image,
-    this.showProducts = false,
-  });
+  const AiChatMessage({required this.type, required this.text, this.image});
 }
 
-class AiRecommendedProduct {
-  final String name;
-  final String subtitle;
-  final double price;
-  final String imagePath;
+// ============================================================
+// COLORS
+// ============================================================
 
-  const AiRecommendedProduct({
-    required this.name,
-    required this.subtitle,
-    required this.price,
-    required this.imagePath,
-  });
-}
+class _AiColors {
+  static const Color primary = Color(0xFF16B85A);
 
-class _AiChatColors {
-  static const primary = Color(0xFF22C55E);
-  static const textPrimary = Color(0xFF17191D);
+  static const Color primarySoft = Color(0xFFEAF8EF);
+
+  static const Color primaryDisabled = Color(0xFFA7DDBB);
+
+  static const Color background = Color(0xFFF8FAF8);
+
+  static const Color userBubble = Color(0xFFE9F8EE);
+
+  static const Color border = Color(0xFFE8ECE9);
+
+  static const Color textPrimary = Color(0xFF171A1D);
+
+  static const Color textSecondary = Color(0xFF667085);
+
+  static const Color textMuted = Color(0xFFA0A7B0);
 }
