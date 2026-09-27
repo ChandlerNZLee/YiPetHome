@@ -119,12 +119,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
 
         final cartItems = ref.watch(cartProvider);
         final products = cartItems.map((item) {
-          return {
-            'productId': item.product.id,
-            'stockId': item.stock.id,
-            'quantity': item.quantity,
-            'price': item.unitPrice,
-          };
+          return {'stockId': item.stock.id, 'quantity': item.quantity};
         }).toList();
 
         final order = {

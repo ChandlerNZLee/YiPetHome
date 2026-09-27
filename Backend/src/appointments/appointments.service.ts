@@ -1,9 +1,11 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { Temporal } from 'temporal-polyfill';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
+
+import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 import type { CreateAppointmentDto } from './dto/create-appointment.dto';
 import type { UpdateAppointmentDto } from './dto/update-appointment.dto';
@@ -49,18 +51,22 @@ export class AppointmentsService {
     private readonly paymentsService: PaymentsService,
   ) { }
 
-  async create(dto: CreateAppointmentDto) {
+  async create(currentUser: JwtPayload, createAppointmentDto: CreateAppointmentDto) {
     await this.expirePendingAppointments();
 
+    const userId =
+      currentUser.role === 2
+        ? currentUser.userId
+        : createAppointmentDto.userId;
+
     const {
-      userId,
       petId,
       shopId,
       groomerId,
       servicePriceIds,
       startAt,
       notes,
-    } = dto;
+    } = createAppointmentDto;
 
     // --------------------------------------------------
     // 1. Service Prices
@@ -423,7 +429,17 @@ export class AppointmentsService {
     }
   }
 
-  findAll() {
+  findAll(
+    currentUser: JwtPayload,
+  ) {
+    if (currentUser.role === 2) {
+      return this.prisma.db.orm.public.Appointments
+        .where({
+          userId: currentUser.userId,
+        })
+        .all();
+    }
+
     return this.prisma.db.orm.public.Appointments.all();
   }
 
@@ -864,13 +880,29 @@ export class AppointmentsService {
     return startA < endB && endA > startB;
   }
 
-  findOne(id: number) {
-    return this.prisma.db.orm.public.Appointments.where({ id }).first();
+  findOne(
+    id: number,
+    currentUser: JwtPayload,
+  ) {
+    if (currentUser.role === 2) {
+      return this.prisma.db.orm.public.Appointments
+        .where({
+          id,
+          userId: currentUser.userId,
+        })
+        .first();
+    }
+
+    return this.prisma.db.orm.public.Appointments
+      .where({
+        id,
+      })
+      .first();
   }
 
   async cancel(
     id: number,
-    userId: number,
+    currentUser: JwtPayload,
   ) {
     const appointment =
       await this.prisma.db.orm.public.Appointments
@@ -887,9 +919,12 @@ export class AppointmentsService {
     // Ownership
     // --------------------------------------------------
 
-    if (appointment.userId !== userId) {
-      throw new BadRequestException(
-        'This appointment does not belong to the current user',
+    if (
+      currentUser.role === 2 &&
+      appointment.userId !== currentUser.userId
+    ) {
+      throw new NotFoundException(
+        'Appointment not found',
       );
     }
 
@@ -951,9 +986,12 @@ export class AppointmentsService {
             );
           }
 
-          if (current.userId !== userId) {
-            throw new BadRequestException(
-              'This appointment does not belong to the current user',
+          if (
+            currentUser.role === 2 &&
+            current.userId !== currentUser.userId
+          ) {
+            throw new NotFoundException(
+              'Appointment not found',
             );
           }
 
@@ -994,7 +1032,7 @@ export class AppointmentsService {
 
   async reschedule(
     id: number,
-    userId: number,
+    currentUser: JwtPayload,
     dto: RescheduleAppointmentDto,
   ) {
     // --------------------------------------------------
@@ -1012,9 +1050,12 @@ export class AppointmentsService {
       );
     }
 
-    if (appointment.userId !== userId) {
-      throw new BadRequestException(
-        'This appointment does not belong to the current user',
+    if (
+      currentUser.role === 2 &&
+      appointment.userId !== currentUser.userId
+    ) {
+      throw new NotFoundException(
+        'Appointment not found',
       );
     }
 
@@ -1173,10 +1214,11 @@ export class AppointmentsService {
           }
 
           if (
-            current.userId !== userId
+            currentUser.role === 2 &&
+            current.userId !== currentUser.userId
           ) {
-            throw new BadRequestException(
-              'This appointment does not belong to the current user',
+            throw new NotFoundException(
+              'Appointment not found',
             );
           }
 
@@ -1269,7 +1311,13 @@ export class AppointmentsService {
     }
   }
 
-  async complete(id: number) {
+  async complete(id: number, currentUser: JwtPayload) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to complete appointments',
+      );
+    }
+
     const appointment =
       await this.prisma.db.orm.public.Appointments
         .where({ id })
@@ -1332,7 +1380,7 @@ export class AppointmentsService {
 
   async update(
     id: number,
-    userId: number,
+    currentUser: JwtPayload,
     dto: UpdateAppointmentDto,
   ) {
     const appointment =
@@ -1346,9 +1394,12 @@ export class AppointmentsService {
       );
     }
 
-    if (appointment.userId !== userId) {
-      throw new BadRequestException(
-        'This appointment does not belong to the current user',
+    if (
+      currentUser.role === 2 &&
+      appointment.userId !== currentUser.userId
+    ) {
+      throw new NotFoundException(
+        'Appointment not found',
       );
     }
 
@@ -1386,21 +1437,50 @@ export class AppointmentsService {
       });
   }
 
-  async remove(id: number) {
-    await this.prisma.db.orm.public.Appointments.where({ id }).delete();
+  async remove(
+    id: number,
+    currentUser: JwtPayload,
+  ) {
+    if (currentUser.role === 2) {
+      await this.prisma.db.orm.public.Appointments
+        .where({
+          id,
+          userId: currentUser.userId,
+        })
+        .delete();
+    } else {
+      await this.prisma.db.orm.public.Appointments
+        .where({
+          id,
+        })
+        .delete();
+    }
+
     return {
       message: 'Appointment deleted successfully',
     };
   }
 
-  async removeAll(): Promise<{
+  async removeAll(
+    currentUser: JwtPayload,
+  ): Promise<{
     message: string;
     deletedCount: number;
   }> {
-    const deletedCount = await this.prisma.db.orm.public.Appointments.where({}).deleteAndCount();
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to delete all appointments',
+      );
+    }
+
+    const deletedCount =
+      await this.prisma.db.orm.public.Appointments
+        .where({})
+        .deleteAndCount();
+
     return {
       message: 'All appointments deleted successfully',
-      deletedCount: deletedCount,
+      deletedCount,
     };
   }
 }

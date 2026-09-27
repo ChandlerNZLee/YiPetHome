@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtAuthModule } from '../common/auth/jwt-auth.module';
 
 import { PetsController } from './pets.controller';
 import { PetsService } from './pets.service';
@@ -10,8 +11,9 @@ import { PetWeightsController } from './pet-weights/pet-weights.controller';
 import { PetWeightsService } from './pet-weights/pet-weights.service';
 
 @Module({
+  imports: [JwtAuthModule],
   controllers: [PetsController, PetGroomsController, PetVaccinesController, PetWeightsController],
   providers: [PetsService, PetGroomsService, PetVaccinesService, PetWeightsService],
   exports: [PetsService, PetGroomsService, PetVaccinesService, PetWeightsService],
 })
-export class PetsModule {}
+export class PetsModule { }

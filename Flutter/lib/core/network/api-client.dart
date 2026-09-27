@@ -1,5 +1,6 @@
 // lib/core/network/api-client.dart
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import 'api-config.dart';
 import 'api-exception.dart';
@@ -23,16 +24,16 @@ class ApiClient {
 
     _dio.interceptors.add(AuthInterceptor());
 
-    _dio.interceptors.add(
-      LogInterceptor(
-        request: true,
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: false,
-        responseBody: true,
-        error: true,
-      ),
-    );
+    if (kDebugMode) {
+      _dio.interceptors.add(
+        LogInterceptor(
+          requestHeader: false,
+          requestBody: true,
+          responseBody: true,
+          error: true,
+        ),
+      );
+    }
   }
 
   static final ApiClient instance = ApiClient._internal();

@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/auth/auth-session.dart';
+
 import 'splash.dart';
+import 'page/login.dart';
 import 'page/shop/payment-result.dart';
 
 import 'view-models/payment.dart';
@@ -26,6 +29,7 @@ class YiPetApp extends StatefulWidget {
 
 class _YiPetAppState extends State<YiPetApp> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  StreamSubscription<AuthSessionEvent>? _authSubscription;
 
   final AppLinks _appLinks = AppLinks();
 
@@ -35,7 +39,32 @@ class _YiPetAppState extends State<YiPetApp> {
   void initState() {
     super.initState();
 
+    _authSubscription = AuthSession.instance.events.listen((event) {
+      _handleAuthEvent(event);
+    });
+
     _initDeepLinks();
+  }
+
+  void _handleAuthEvent(AuthSessionEvent event) {
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
+
+    if (event == AuthSessionEvent.expired) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final context = navigatorKey.currentContext;
+
+        if (context == null) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Your session has expired. Please sign in again.'),
+          ),
+        );
+      });
+    }
   }
 
   Future<void> _initDeepLinks() async {

@@ -2,6 +2,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../services/auth-service.dart';
+import '../../core/network/api-exception.dart';
+
 import '../tabbar.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -79,18 +82,14 @@ class _RegisterPageState extends State<RegisterPage> {
     });
 
     try {
-      final requestData = {
-        'username': _usernameController.text.trim(),
-        'mobile': _mobileController.text.trim(),
-        'firstName': _firstNameController.text.trim(),
-        'lastName': _lastNameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'password': _passwordController.text,
-      };
-
-      // TODO: 调用 NestJS 注册接口
-
-      await Future<void>.delayed(const Duration(seconds: 1));
+      await AuthService.instance.register(
+        username: _usernameController.text.trim(),
+        mobile: _mobileController.text.trim(),
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
 
       if (!mounted) return;
 
@@ -99,12 +98,20 @@ class _RegisterPageState extends State<RegisterPage> {
       ).showSnackBar(const SnackBar(content: Text('Registration successful')));
 
       Navigator.pop(context);
-    } catch (error) {
+    } on ApiException catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Registration failed: $error')));
+      ).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong. Please try again.'),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {

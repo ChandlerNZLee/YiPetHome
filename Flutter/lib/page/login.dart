@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/auth-service.dart';
+import '../core/auth/auth-session.dart';
 import '../core/network/api-exception.dart';
 
 import 'login/reset.dart';
@@ -56,7 +57,15 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      await AuthService.instance.login(email: email, password: password);
+      final response = await AuthService.instance.login(
+        email: email,
+        password: password,
+      );
+
+      await AuthSession.instance.createSession(
+        token: response.accessToken,
+        userId: response.user.id,
+      );
 
       if (!mounted) return;
 

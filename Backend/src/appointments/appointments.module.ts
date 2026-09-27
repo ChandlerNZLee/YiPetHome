@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { JwtAuthModule } from '../common/auth/jwt-auth.module';
 import { PaymentsModule } from '../payments/payments.module';
 
 import { AppointmentsController } from './appointments.controller';
@@ -8,7 +9,7 @@ import { AppointmentServicesController } from './appointment-services/appointmen
 import { AppointmentServicesService } from './appointment-services/appointment-services.service';
 
 @Module({
-  imports: [PaymentsModule],
+  imports: [JwtAuthModule, PaymentsModule],
   controllers: [AppointmentsController, AppointmentServicesController],
   providers: [AppointmentsService, AppointmentServicesService],
   exports: [AppointmentsService, AppointmentServicesService],

@@ -1,6 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+
+import type { JwtPayload } from '../../auth/interfaces/jwt-payload.interface';
 
 import type { CreateShopOrderDto } from './dto/create-shop-order.dto';
 import type { UpdateShopOrderDto } from './dto/update-shop-order.dto';
@@ -18,11 +20,30 @@ export class ShopOrdersService {
     return `TRK${date}${time}${random}`;
   }
 
-  async create(createShopOrderDto: CreateShopOrderDto) {
-    const { userId, addressId, products } = createShopOrderDto;
+  async create(currentUser: JwtPayload, createShopOrderDto: CreateShopOrderDto) {
+    const { addressId, products } = createShopOrderDto;
+
+    const userId =
+      currentUser.role === 2
+        ? currentUser.userId
+        : createShopOrderDto.userId;
 
     if (!products || products.length === 0) {
       throw new BadRequestException('Order must contain at least one product');
+    }
+
+    const userAddress =
+      await this.prisma.db.orm.public.UserAddresses
+        .where({
+          userId,
+          addressId,
+        })
+        .first();
+
+    if (!userAddress) {
+      throw new NotFoundException(
+        'Address not found for this user',
+      );
     }
 
     let totalPrice = 0;
@@ -48,8 +69,8 @@ export class ShopOrdersService {
       totalPrice += stock.price * product.quantity;
 
       orderProducts.push({
-        productId: product.productId,
-        stockId: product.stockId,
+        productId: stock.productId,
+        stockId: stock.id,
         quantity: product.quantity,
         price: stock.price,
       });
@@ -89,7 +110,13 @@ export class ShopOrdersService {
     };
   }
 
-  async process(id: number) {
+  async process(id: number, currentUser: JwtPayload) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to process orders',
+      );
+    }
+
     const order = await this.prisma.db.orm.public.ShopOrders.where({ id }).first();
 
     if (!order) {
@@ -112,8 +139,18 @@ export class ShopOrdersService {
     };
   }
 
-  async findAll() {
-    const orders = await this.prisma.db.orm.public.ShopOrders.all();
+  async findAll(
+    currentUser: JwtPayload
+  ) {
+    const orders =
+      currentUser.role === 2
+        ? await this.prisma.db.orm.public.ShopOrders
+          .where({
+            userId: currentUser.userId,
+          })
+          .all()
+        : await this.prisma.db.orm.public.ShopOrders.all();
+
     return Promise.all(
       orders.map(async (order) => {
         const user = await this.prisma.db.orm.public.Users.where({ id: order.userId }).first();
@@ -136,8 +173,22 @@ export class ShopOrdersService {
     );
   }
 
-  findOne(id: number) {
-    return this.prisma.db.orm.public.ShopOrders.where({ id }).first();
+  async findOne(
+    id: number,
+    currentUser: JwtPayload,
+  ) {
+    if (currentUser.role === 2) {
+      return this.prisma.db.orm.public.ShopOrders
+        .where({
+          id,
+          userId: currentUser.userId,
+        })
+        .first();
+    }
+
+    return this.prisma.db.orm.public.ShopOrders
+      .where({ id })
+      .first();
   }
 
   async findByUserId(id: number) {
@@ -173,21 +224,39 @@ export class ShopOrdersService {
     return result;
   }
 
-  update(id: number, updateShopOrderDto: UpdateShopOrderDto) {
+  update(id: number, currentUser: JwtPayload, updateShopOrderDto: UpdateShopOrderDto) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to update orders',
+      );
+    }
+
     return this.prisma.db.orm.public.ShopOrders.where({ id }).update(updateShopOrderDto);
   }
 
-  async remove(id: number) {
+  async remove(id: number, currentUser: JwtPayload) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to delete orders',
+      );
+    }
+
     await this.prisma.db.orm.public.ShopOrders.where({ id }).delete();
     return {
       message: 'Shop order deleted successfully',
     };
   }
 
-  async removeAll(): Promise<{
+  async removeAll(currentUser: JwtPayload): Promise<{
     message: string;
     deletedCount: number;
   }> {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to delete orders',
+      );
+    }
+
     const deletedCount = await this.prisma.db.orm.public.ShopOrders.where({}).deleteAndCount();
     return {
       message: 'All shop orders deleted successfully',

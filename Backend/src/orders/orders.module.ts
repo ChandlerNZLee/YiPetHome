@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 
+
+import { JwtAuthModule } from '../common/auth/jwt-auth.module';
+
 import { ShopOrdersController } from './shop-orders/shop-orders.controller';
 import { ShopOrdersService } from './shop-orders/shop-orders.service';
 import { ShopOrderProductsController } from './shop-orders/shop-order-products/shop-order-products.controller';
@@ -8,6 +11,7 @@ import { RechargeOrdersController } from './recharge-orders/recharge-orders.cont
 import { RechargeOrdersService } from './recharge-orders/recharge-orders.service';
 
 @Module({
+  imports: [JwtAuthModule],
   controllers: [ShopOrdersController, ShopOrderProductsController, RechargeOrdersController],
   providers: [ShopOrdersService, ShopOrderProductsService, RechargeOrdersService],
   exports: [ShopOrdersService, ShopOrderProductsService, RechargeOrdersService],

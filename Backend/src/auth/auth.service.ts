@@ -13,6 +13,7 @@ import type { JwtPayload } from './interfaces/jwt-payload.interface';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import type { LoginWebDto } from './dto/login-web.dto';
 import type { LoginAppDto } from './dto/login-app.dto';
+import { RegisterAppDto } from './dto/register-app.dto';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import { ResetUserDto } from 'src/users/dto/reset-user.dto';
 
@@ -77,6 +78,7 @@ export class AuthService {
     const payload: JwtPayload = {
       userId: user.id,
       username: user.username,
+      role: user.role,
     };
     const accessToken = await this.jwtService.signAsync(payload);
 
@@ -119,22 +121,65 @@ export class AuthService {
     };
   }
 
-  async appRegister(createUserDto: CreateUserDto) {
-    const existingUser = await this.prisma.db.orm.public.Users.where({ email: createUserDto.email }).first();
+  async appRegister(
+    registerAppDto: RegisterAppDto,
+  ) {
+    const existingEmail =
+      await this.prisma.db.orm.public.Users.where(
+        (user) =>
+          user.email.ilike(registerAppDto.email),
+      ).first();
 
-    if (existingUser) {
-      throw new ConflictException('Email is already registered');
+    if (existingEmail) {
+      throw new ConflictException(
+        'Email is already registered',
+      );
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const user = await this.prisma.db.orm.public.Users.create({
-      ...createUserDto,
-      password: hashedPassword,
-    });
+    const existingUsername =
+      await this.prisma.db.orm.public.Users.where({
+        username: registerAppDto.username,
+      }).first();
+
+    if (existingUsername) {
+      throw new ConflictException(
+        'Username is already registered',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(registerAppDto.password, 10);
+
+    const user =
+      await this.prisma.db.orm.public.Users.create({
+        username: registerAppDto.username,
+        password: hashedPassword,
+
+        email: registerAppDto.email.toLowerCase(),
+        mobile: registerAppDto.mobile,
+
+        firstName: registerAppDto.firstName,
+        lastName: registerAppDto.lastName,
+
+        // App users
+        role: 2,
+
+        // New customers don't belong to a shop
+        shopId: null,
+
+        // New users have no avatar initially
+        avatar: null,
+
+        // Never accept initial balance from client
+        balance: 0,
+      });
 
     const { password, ...safeUser } = user;
 
-    return safeUser;
+    return {
+      success: true,
+      message: 'Registration successful',
+      user: safeUser,
+    };
   }
 
   async appLogin(loginAppDto: LoginAppDto) {
@@ -158,6 +203,7 @@ export class AuthService {
     const payload: JwtPayload = {
       userId: user.id,
       username: user.email,
+      role: user.role,
     };
     const accessToken = await this.jwtService.signAsync(payload);
 

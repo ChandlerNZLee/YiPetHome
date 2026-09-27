@@ -5,6 +5,7 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { ResetUserDto } from '../users/dto/reset-user.dto';
 import { LoginWebDto } from './dto/login-web.dto';
 import { LoginAppDto } from './dto/login-app.dto';
+import { RegisterAppDto } from './dto/register-app.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,9 +30,9 @@ export class AuthController {
 
     @Post('/app/register')
     appRegister(
-        @Body() createUserDto: CreateUserDto,
+        @Body() RegisterAppDto: RegisterAppDto,
     ) {
-        return this.authService.appRegister(createUserDto);
+        return this.authService.appRegister(RegisterAppDto);
     }
 
     @Post('/app/login')

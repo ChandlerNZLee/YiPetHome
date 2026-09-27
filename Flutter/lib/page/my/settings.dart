@@ -1,7 +1,7 @@
 // lib/page/my/settings.dart
 import 'package:flutter/material.dart';
 
-import '../../services/auth-service.dart';
+import '../../core/auth/auth-session.dart';
 
 import 'settings/personal-information.dart';
 import 'settings/pets.dart';
@@ -101,15 +101,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (result != true || !mounted) return;
 
-    AuthService.instance.logout();
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (route) => false,
-    );
-
-    _showMessage('Logged out');
+    await AuthSession.instance.logout();
   }
 
   @override

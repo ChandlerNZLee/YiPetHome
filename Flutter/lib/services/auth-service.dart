@@ -2,6 +2,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/network/api-client.dart';
+import '../core/auth/token-storage.dart';
+
 import '../models/auth/login-response.dart';
 import '../models/common/common-response.dart';
 
@@ -25,8 +27,35 @@ class AuthService {
     );
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_token', result.accessToken);
     await prefs.setInt('user_id', result.user.id);
+
+    TokenStorage.instance.saveToken(result.accessToken);
+
+    return result;
+  }
+
+  Future<CommonResponse> register({
+    required String username,
+    required String mobile,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  }) async {
+    final result = await _api.post<CommonResponse>(
+      '/auth/app/register',
+      data: {
+        'username': username,
+        'mobile': mobile,
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email,
+        'password': password,
+      },
+      parser: (data) {
+        return CommonResponse.fromJson(data as Map<String, dynamic>);
+      },
+    );
 
     return result;
   }
@@ -41,10 +70,5 @@ class AuthService {
     );
 
     return result;
-  }
-
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('user_token');
   }
 }

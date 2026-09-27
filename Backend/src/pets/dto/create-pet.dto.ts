@@ -2,11 +2,6 @@ import { Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 
 export class CreatePetDto {
-  @Type(() => Number)
-  @IsInt({ message: 'User ID must be an integer.' })
-  @Min(0, { message: 'User ID must be greater than or equal to 0.' })
-  userId!: number;
-
   @IsString({ message: 'Avatar must be a string.' })
   @IsNotEmpty({ message: 'Avatar is required.' })
   avatar!: string;
