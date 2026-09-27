@@ -16,21 +16,25 @@ export class RechargeOrdersController {
 
     @Post()
     async create(
+        @Req() request: AuthenticatedRequest,
         @Body() createRechargeOrderDto: CreateRechargeOrderDto,
     ) {
-        return this.rechargeOrdersService.create(createRechargeOrderDto);
+        return this.rechargeOrdersService.create(request.user, createRechargeOrderDto);
     }
 
     @Get()
-    async findAll() {
-        return this.rechargeOrdersService.findAll();
+    async findAll(
+        @Req() request: AuthenticatedRequest,
+    ) {
+        return this.rechargeOrdersService.findAll(request.user);
     }
 
     @Get(':id')
     async findOne(
         @Param('id', ParseIntPipe) id: number,
+        @Req() request: AuthenticatedRequest,
     ) {
-        return this.rechargeOrdersService.findOne(id);
+        return this.rechargeOrdersService.findOne(id, request.user);
     }
 
     @Put(':id')
@@ -49,15 +53,18 @@ export class RechargeOrdersController {
     @Delete(':id')
     async remove(
         @Param('id', ParseIntPipe) id: number,
+        @Req() request: AuthenticatedRequest,
     ): Promise<{ message: string }> {
-        return this.rechargeOrdersService.remove(id);
+        return this.rechargeOrdersService.remove(id, request.user);
     }
 
     @Delete()
-    async removeAll(): Promise<{
+    async removeAll(
+        @Req() request: AuthenticatedRequest,
+    ): Promise<{
         message: string;
         deletedCount: number;
     }> {
-        return this.rechargeOrdersService.removeAll();
+        return this.rechargeOrdersService.removeAll(request.user);
     }
 }

@@ -11,8 +11,14 @@ import type { UpdateRechargeOrderDto } from './dto/update-recharge-order.dto';
 export class RechargeOrdersService {
     constructor(private readonly prisma: PrismaService) { }
 
-    async create(createRechargeOrderDto: CreateRechargeOrderDto) {
-        const { userId, bonusId } = createRechargeOrderDto;
+    async create(currentUser: JwtPayload, createRechargeOrderDto: CreateRechargeOrderDto) {
+        const { bonusId } = createRechargeOrderDto;
+
+        const userId =
+            currentUser.role === 2
+                ? currentUser.userId
+                : createRechargeOrderDto.userId;
+
 
         const bonus = await this.prisma.db.orm.public.RechargeBonuses.where({ id: bonusId }).first();
         if (!bonus) {
@@ -49,12 +55,31 @@ export class RechargeOrdersService {
         };
     }
 
-    findAll() {
-        return this.prisma.db.orm.public.RechargeOrders.all();
+    async findAll(currentUser: JwtPayload) {
+        const orders = currentUser.role === 2
+            ? await this.prisma.db.orm.public.RechargeOrders
+                .where({
+                    userId: currentUser.userId,
+                })
+                .all()
+            : await this.prisma.db.orm.public.RechargeOrders.all();
+
+        return orders;
     }
 
-    findOne(id: number) {
-        return this.prisma.db.orm.public.RechargeOrders.where({ id }).first();
+    findOne(id: number, currentUser: JwtPayload) {
+        if (currentUser.role === 2) {
+            return this.prisma.db.orm.public.RechargeOrders
+                .where({
+                    id,
+                    userId: currentUser.userId,
+                })
+                .first();
+        }
+
+        return this.prisma.db.orm.public.RechargeOrders
+            .where({ id })
+            .first();
     }
 
     update(id: number, currentUser: JwtPayload, updateRechargeOrderDto: UpdateRechargeOrderDto) {
@@ -67,17 +92,31 @@ export class RechargeOrdersService {
         return this.prisma.db.orm.public.RechargeOrders.where({ id }).update(updateRechargeOrderDto);
     }
 
-    async remove(id: number) {
+    async remove(id: number, currentUser: JwtPayload) {
+        if (currentUser.role === 2) {
+            throw new ForbiddenException(
+                'You do not have permission to delete orders',
+            );
+        }
+
         await this.prisma.db.orm.public.RechargeOrders.where({ id }).delete();
         return {
             message: 'Recharge order deleted successfully',
         };
     }
 
-    async removeAll(): Promise<{
+    async removeAll(
+        currentUser: JwtPayload
+    ): Promise<{
         message: string;
         deletedCount: number;
     }> {
+        if (currentUser.role === 2) {
+            throw new ForbiddenException(
+                'You do not have permission to delete orders',
+            );
+        }
+
         const deletedCount = await this.prisma.db.orm.public.RechargeOrders.where({}).deleteAndCount();
         return {
             message: 'All recharge orders deleted successfully',
