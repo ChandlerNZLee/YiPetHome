@@ -1,9 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+
+import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../../common/auth/authenticated-request.interface';
 
 import { RechargeOrdersService } from './recharge-orders.service';
 import { CreateRechargeOrderDto } from './dto/create-recharge-order.dto';
+import { UpdateRechargeOrderDto } from './dto/update-recharge-order.dto';
 
 @Controller('recharge-orders')
+@UseGuards(JwtAuthGuard)
 export class RechargeOrdersController {
     constructor(
         private readonly rechargeOrdersService: RechargeOrdersService,
@@ -26,6 +31,19 @@ export class RechargeOrdersController {
         @Param('id', ParseIntPipe) id: number,
     ) {
         return this.rechargeOrdersService.findOne(id);
+    }
+
+    @Put(':id')
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() request: AuthenticatedRequest,
+        @Body() updateRechargeOrderDto: UpdateRechargeOrderDto,
+    ) {
+        return this.rechargeOrdersService.update(
+            id,
+            request.user,
+            updateRechargeOrderDto,
+        );
     }
 
     @Delete(':id')

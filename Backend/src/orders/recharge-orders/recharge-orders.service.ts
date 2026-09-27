@@ -1,8 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
+import type { JwtPayload } from '../../auth/interfaces/jwt-payload.interface';
+
 import type { CreateRechargeOrderDto } from './dto/create-recharge-order.dto';
+import type { UpdateRechargeOrderDto } from './dto/update-recharge-order.dto';
 
 @Injectable()
 export class RechargeOrdersService {
@@ -52,6 +55,16 @@ export class RechargeOrdersService {
 
     findOne(id: number) {
         return this.prisma.db.orm.public.RechargeOrders.where({ id }).first();
+    }
+
+    update(id: number, currentUser: JwtPayload, updateRechargeOrderDto: UpdateRechargeOrderDto) {
+        if (currentUser.role === 2) {
+            throw new ForbiddenException(
+                'You do not have permission to update orders',
+            );
+        }
+
+        return this.prisma.db.orm.public.RechargeOrders.where({ id }).update(updateRechargeOrderDto);
     }
 
     async remove(id: number) {
