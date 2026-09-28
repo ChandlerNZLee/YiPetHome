@@ -5,7 +5,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import type { JwtPayload } from '../../auth/interfaces/jwt-payload.interface';
 
 import type { CreateRechargeOrderDto } from './dto/create-recharge-order.dto';
-import type { UpdateRechargeOrderDto } from './dto/update-recharge-order.dto';
 
 @Injectable()
 export class RechargeOrdersService {
@@ -19,6 +18,24 @@ export class RechargeOrdersService {
                 ? currentUser.userId
                 : createRechargeOrderDto.userId;
 
+        if (!userId) {
+            throw new BadRequestException(
+                'User ID is required',
+            );
+        }
+
+        const user =
+            await this.prisma.db.orm.public.Users
+                .where({
+                    id: userId,
+                })
+                .first();
+
+        if (!user) {
+            throw new NotFoundException(
+                `User ${userId} not found`,
+            );
+        }
 
         const bonus = await this.prisma.db.orm.public.RechargeBonuses.where({ id: bonusId }).first();
         if (!bonus) {
@@ -67,29 +84,31 @@ export class RechargeOrdersService {
         return orders;
     }
 
-    findOne(id: number, currentUser: JwtPayload) {
-        if (currentUser.role === 2) {
-            return this.prisma.db.orm.public.RechargeOrders
-                .where({
-                    id,
-                    userId: currentUser.userId,
-                })
-                .first();
-        }
+    async findOne(
+        id: number,
+        currentUser: JwtPayload,
+    ) {
+        const order =
+            currentUser.role === 2
+                ? await this.prisma.db.orm.public.RechargeOrders
+                    .where({
+                        id,
+                        userId: currentUser.userId,
+                    })
+                    .first()
+                : await this.prisma.db.orm.public.RechargeOrders
+                    .where({
+                        id,
+                    })
+                    .first();
 
-        return this.prisma.db.orm.public.RechargeOrders
-            .where({ id })
-            .first();
-    }
-
-    update(id: number, currentUser: JwtPayload, updateRechargeOrderDto: UpdateRechargeOrderDto) {
-        if (currentUser.role === 2) {
-            throw new ForbiddenException(
-                'You do not have permission to update orders',
+        if (!order) {
+            throw new NotFoundException(
+                'Recharge order not found',
             );
         }
 
-        return this.prisma.db.orm.public.RechargeOrders.where({ id }).update(updateRechargeOrderDto);
+        return order;
     }
 
     async remove(id: number, currentUser: JwtPayload) {

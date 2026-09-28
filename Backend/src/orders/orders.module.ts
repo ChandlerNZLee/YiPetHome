@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 
-
 import { JwtAuthModule } from '../common/auth/jwt-auth.module';
 
 import { ShopOrdersController } from './shop-orders/shop-orders.controller';

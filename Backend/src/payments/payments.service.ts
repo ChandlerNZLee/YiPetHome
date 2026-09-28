@@ -567,18 +567,90 @@ export class PaymentsService {
         }
     }
 
-    async getCheckoutSession(sessionId: string) {
-        const session =
-            await this.stripeProvider.retrieveCheckoutSession(
-                sessionId,
+    async getCheckoutSession(
+        sessionId: string,
+        userId: number,
+    ) {
+        const payment =
+            await this.prisma.db.orm.public.Payments
+                .where({
+                    stripeCheckoutSessionId: sessionId,
+                })
+                .first();
+
+        if (!payment) {
+            throw new NotFoundException(
+                'Payment not found',
             );
+        }
+
+        let ownerUserId: number | null = null;
+
+        if (
+            payment.paymentType === 0 &&
+            payment.shopOrderId
+        ) {
+            const order =
+                await this.prisma.db.orm.public.ShopOrders
+                    .where({
+                        id: payment.shopOrderId,
+                    })
+                    .first();
+
+            ownerUserId = order?.userId ?? null;
+        }
+
+        if (
+            payment.paymentType === 1 &&
+            payment.rechargeOrderId
+        ) {
+            const order =
+                await this.prisma.db.orm.public.RechargeOrders
+                    .where({
+                        id: payment.rechargeOrderId,
+                    })
+                    .first();
+
+            ownerUserId = order?.userId ?? null;
+        }
+
+        if (
+            payment.paymentType === 2 &&
+            payment.appointmentId
+        ) {
+            const appointment =
+                await this.prisma.db.orm.public.Appointments
+                    .where({
+                        id: payment.appointmentId,
+                    })
+                    .first();
+
+            ownerUserId =
+                appointment?.userId ?? null;
+        }
+
+        if (ownerUserId !== userId) {
+            throw new NotFoundException(
+                'Payment not found',
+            );
+        }
+
+        const session =
+            await this.stripeProvider
+                .retrieveCheckoutSession(
+                    sessionId,
+                );
 
         return {
             id: session.id,
-            paymentStatus: session.payment_status,
-            status: session.status,
-            orderId: session.metadata?.orderId,
-            paymentId: session.metadata?.paymentId,
+            paymentStatus:
+                session.payment_status,
+            status:
+                session.status,
+            orderId:
+                session.metadata?.orderId,
+            paymentId:
+                session.metadata?.paymentId,
         };
     }
 

@@ -149,10 +149,7 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
       }
     } else if (widget.type == PaymentSummaryType.topup) {
       try {
-        final prefs = await SharedPreferences.getInstance();
-        final userId = prefs.getInt('user_id');
-
-        final order = {'userId': userId, 'bonusId': widget.bonus!.id};
+        final order = {'bonusId': widget.bonus!.id};
         final res = await ShopService.instance.createRechargeOrder(order);
 
         _checkPayment(res.order.id);
@@ -187,7 +184,6 @@ class _PaymentPageState extends ConsumerState<PaymentPage> {
         }
 
         final appointment = {
-          'userId': userId,
           'petId': widget.appointment!.pet.id,
           'shopId': widget.appointment!.shop.id,
           'groomerId': widget.appointment!.groomer.id,

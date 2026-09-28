@@ -7,11 +7,15 @@ import {
     Param,
     Post,
     Req,
+    UseGuards,
 } from '@nestjs/common';
 
 import type { RawBodyRequest } from '@nestjs/common';
 import { Request } from 'express';
 import Stripe from 'stripe';
+
+import { JwtAuthGuard } from '../common/auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../common/auth/authenticated-request.interface';
 
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { PaymentsService } from './payments.service';
@@ -25,21 +29,25 @@ export class PaymentsController {
     ) { }
 
     @Post('checkout')
+    @UseGuards(JwtAuthGuard)
     async createCheckout(
+        @Req() request: AuthenticatedRequest,
         @Body() dto: CreatePaymentDto,
     ) {
         return this.paymentsService.createCheckoutSession(
             dto.orderId,
             dto.orderType,
-            dto.userId,
+            request.user.userId,
         );
     }
 
     @Get('checkout/:id')
+    @UseGuards(JwtAuthGuard)
     async getCheckout(
         @Param('id') id: string,
+        @Req() request: AuthenticatedRequest,
     ) {
-        return this.paymentsService.getCheckoutSession(id);
+        return this.paymentsService.getCheckoutSession(id, request.user.userId);
     }
 
     @Post('webhook')
@@ -80,13 +88,14 @@ export class PaymentsController {
     }
 
     @Post('appointments/:id/refund')
+    @UseGuards(JwtAuthGuard)
     async refundAppointment(
         @Param('id') id: string,
-        @Body() body: { userId: number },
+        @Req() request: AuthenticatedRequest,
     ) {
         return this.paymentsService.refundAppointment(
             Number(id),
-            Number(body.userId),
+            Number(request.user.userId),
         );
     }
 }
