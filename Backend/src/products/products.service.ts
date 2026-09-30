@@ -1,6 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
+
+import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 import type { CreateProductDto } from './dto/create-product.dto';
 import type { UpdateProductDto } from './dto/update-product.dto';
@@ -10,8 +17,18 @@ import type { QueryProductDto } from './dto/query-product.dto';
 export class ProductsService {
   constructor(private readonly prisma: PrismaService) { }
 
-  create(createProductDto: CreateProductDto) {
-    return this.prisma.db.orm.public.Products.create(createProductDto);
+  create(
+    currentUser: JwtPayload,
+    createProductDto: CreateProductDto,
+  ) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to create products',
+      );
+    }
+
+    return this.prisma.db.orm.public.Products
+      .create(createProductDto);
   }
 
   async findAll() {
@@ -31,7 +48,18 @@ export class ProductsService {
   }
 
   async findOne(id: number) {
-    return this.prisma.db.orm.public.Products.where({ id }).first();
+    const product =
+      await this.prisma.db.orm.public.Products
+        .where({ id })
+        .first();
+
+    if (!product) {
+      throw new NotFoundException(
+        'Product not found',
+      );
+    }
+
+    return product;
   }
 
   async findByShopId(id: number) {
@@ -60,8 +88,42 @@ export class ProductsService {
       });
   }
 
-  async findRecommendByType(type: number, queryProductDto: QueryProductDto) {
-    const pet = await this.prisma.db.orm.public.Pets.where({ id: queryProductDto.petId }).first();
+  async findRecommendByType(
+    type: number,
+    currentUser: JwtPayload,
+    queryProductDto: QueryProductDto,
+  ) {
+    if (!queryProductDto.petId) {
+      throw new BadRequestException(
+        'Pet ID is required',
+      );
+    }
+
+    if (!queryProductDto.shopId) {
+      throw new BadRequestException(
+        'Shop ID is required',
+      );
+    }
+
+    const pet =
+      currentUser.role === 2
+        ? await this.prisma.db.orm.public.Pets
+          .where({
+            id: queryProductDto.petId,
+            userId: currentUser.userId,
+          })
+          .first()
+        : await this.prisma.db.orm.public.Pets
+          .where({
+            id: queryProductDto.petId,
+          })
+          .first();
+
+    if (!pet) {
+      throw new NotFoundException(
+        'Pet not found',
+      );
+    }
 
     if (!pet) {
       throw new NotFoundException('Pet not found');
@@ -94,6 +156,12 @@ export class ProductsService {
   }
 
   async findByKeyword(queryProductDto: QueryProductDto) {
+    if (!queryProductDto.shopId) {
+      throw new BadRequestException(
+        'Shop ID is required',
+      );
+    }
+
     const keyword = queryProductDto.keyword?.trim().toLowerCase() ?? '';
     const allProducts = await this.prisma.db.orm.public.Products.all();
     const products = allProducts.filter((product) => {
@@ -123,6 +191,18 @@ export class ProductsService {
   }
 
   async findOneByShop(queryProductDto: QueryProductDto) {
+    if (!queryProductDto.productId) {
+      throw new BadRequestException(
+        'Product ID is required',
+      );
+    }
+
+    if (!queryProductDto.shopId) {
+      throw new BadRequestException(
+        'Shop ID is required',
+      );
+    }
+
     const product = await this.prisma.db.orm.public.Products.where({ id: queryProductDto.productId }).first();
 
     if (!product) {
@@ -150,25 +230,79 @@ export class ProductsService {
     };
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    return this.prisma.db.orm.public.Products.where({ id }).update(updateProductDto);
+  async update(
+    id: number,
+    currentUser: JwtPayload,
+    updateProductDto: UpdateProductDto,
+  ) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to update products',
+      );
+    }
+
+    const product =
+      await this.prisma.db.orm.public.Products
+        .where({ id })
+        .first();
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    return this.prisma.db.orm.public.Products
+      .where({ id })
+      .update(updateProductDto);
   }
 
-  async remove(id: number) {
-    await this.prisma.db.orm.public.Products.where({ id }).delete();
+  async remove(
+    id: number,
+    currentUser: JwtPayload,
+  ) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to delete products',
+      );
+    }
+
+    const product =
+      await this.prisma.db.orm.public.Products
+        .where({ id })
+        .first();
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    await this.prisma.db.orm.public.Products
+      .where({ id })
+      .delete();
+
     return {
       message: 'Product deleted successfully',
     };
   }
 
-  async removeAll(): Promise<{
+  async removeAll(
+    currentUser: JwtPayload,
+  ): Promise<{
     message: string;
     deletedCount: number;
   }> {
-    const deletedCount = await this.prisma.db.orm.public.Products.where({}).deleteAndCount();
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to delete all products',
+      );
+    }
+
+    const deletedCount =
+      await this.prisma.db.orm.public.Products
+        .where({})
+        .deleteAndCount();
+
     return {
       message: 'All products deleted successfully',
-      deletedCount: deletedCount,
+      deletedCount,
     };
   }
 }

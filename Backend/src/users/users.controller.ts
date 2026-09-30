@@ -18,6 +18,7 @@ import type { AuthenticatedRequest } from '../common/auth/authenticated-request.
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('users')
 export class UsersController {
@@ -26,15 +27,25 @@ export class UsersController {
   ) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
+    @Req() request: AuthenticatedRequest,
     @Body() createUserDto: CreateUserDto,
   ) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.create(
+      request.user,
+      createUserDto,
+    );
   }
 
   @Get()
-  async findAll() {
-    return this.usersService.findAll();
+  @UseGuards(JwtAuthGuard)
+  async findAll(
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.usersService.findAll(
+      request.user,
+    );
   }
 
   @Get('me')
@@ -47,36 +58,63 @@ export class UsersController {
     );
   }
 
+  @Put('me')
+  @UseGuards(JwtAuthGuard)
+  async updateMe(
+    @Req() request: AuthenticatedRequest,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.usersService.updateProfile(
+      request.user.userId,
+      updateProfileDto,
+    );
+  }
+
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async findOne(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
   ) {
-    return this.usersService.findOne(id);
+    return this.usersService.findOneForAdmin(
+      id,
+      request.user,
+    );
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(
       id,
+      request.user,
       updateUserDto,
     );
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
   ): Promise<{ message: string }> {
-    return this.usersService.remove(id);
+    return this.usersService.remove(
+      id,
+      request.user,
+    );
   }
 
   @Delete()
-  async removeAll(): Promise<{
-    message: string;
-    deletedCount: number;
-  }> {
-    return this.usersService.removeAll();
+  @UseGuards(JwtAuthGuard)
+  async removeAll(
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.usersService.removeAll(
+      request.user,
+    );
   }
 }

@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+
+import { JwtAuthGuard } from '../common/auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../common/auth/authenticated-request.interface';
 
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
@@ -11,10 +14,15 @@ export class ServicesController {
   ) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
+    @Req() request: AuthenticatedRequest,
     @Body() createServiceDto: CreateServiceDto,
   ) {
-    return this.servicesService.create(createServiceDto);
+    return this.servicesService.create(
+      request.user,
+      createServiceDto,
+    );
   }
 
   @Get()
@@ -30,35 +38,50 @@ export class ServicesController {
   }
 
   @Get('/pet/:id')
+  @UseGuards(JwtAuthGuard)
   async findByPetId(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
   ) {
-    return this.servicesService.findByPetId(id);
+    return this.servicesService.findByPetId(
+      id,
+      request.user,
+    );
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
     @Body() updateServiceDto: UpdateServiceDto,
   ) {
     return this.servicesService.update(
       id,
+      request.user,
       updateServiceDto,
     );
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<{ message: string }> {
-    return this.servicesService.remove(id);
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.servicesService.remove(
+      id,
+      request.user,
+    );
   }
 
   @Delete()
-  async removeAll(): Promise<{
-    message: string;
-    deletedCount: number;
-  }> {
-    return this.servicesService.removeAll();
+  @UseGuards(JwtAuthGuard)
+  async removeAll(
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.servicesService.removeAll(
+      request.user,
+    );
   }
 }

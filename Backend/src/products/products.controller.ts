@@ -1,4 +1,18 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+
+import { JwtAuthGuard } from '../common/auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../common/auth/authenticated-request.interface';
 
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -12,10 +26,15 @@ export class ProductsController {
   ) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
+    @Req() request: AuthenticatedRequest,
     @Body() createProductDto: CreateProductDto,
   ) {
-    return this.productsService.create(createProductDto);
+    return this.productsService.create(
+      request.user,
+      createProductDto,
+    );
   }
 
   @Get()
@@ -45,11 +64,17 @@ export class ProductsController {
   }
 
   @Post('/recommend/:type')
+  @UseGuards(JwtAuthGuard)
   async findRecommendByType(
     @Param('type', ParseIntPipe) type: number,
+    @Req() request: AuthenticatedRequest,
     @Body() queryProductDto: QueryProductDto,
   ) {
-    return this.productsService.findRecommendByType(type, queryProductDto);
+    return this.productsService.findRecommendByType(
+      type,
+      request.user,
+      queryProductDto,
+    );
   }
 
   @Post('/search')
@@ -67,28 +92,38 @@ export class ProductsController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return this.productsService.update(
       id,
+      request.user,
       updateProductDto,
     );
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<{ message: string }> {
-    return this.productsService.remove(id);
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.productsService.remove(
+      id,
+      request.user,
+    );
   }
 
   @Delete()
-  async removeAll(): Promise<{
-    message: string;
-    deletedCount: number;
-  }> {
-    return this.productsService.removeAll();
+  @UseGuards(JwtAuthGuard)
+  async removeAll(
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.productsService.removeAll(
+      request.user,
+    );
   }
 }

@@ -1,6 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
+
+import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 import type { CreateServiceDto } from './dto/create-service.dto';
 import type { UpdateServiceDto } from './dto/update-service.dto';
@@ -9,8 +11,17 @@ import type { UpdateServiceDto } from './dto/update-service.dto';
 export class ServicesService {
   constructor(private readonly prisma: PrismaService) { }
 
-  create(createServiceDto: CreateServiceDto) {
-    return this.prisma.db.orm.public.Services.create(createServiceDto);
+  create(
+    currentUser: JwtPayload,
+    dto: CreateServiceDto,
+  ) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to create services',
+      );
+    }
+
+    return this.prisma.db.orm.public.Services.create(dto);
   }
 
   async findAll() {
@@ -23,15 +34,38 @@ export class ServicesService {
     }));
   }
 
-  findOne(id: number) {
-    return this.prisma.db.orm.public.Services.where({ id }).first();
+  async findOne(id: number) {
+    const service =
+      await this.prisma.db.orm.public.Services
+        .where({ id })
+        .first();
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    return service;
   }
 
-  async findByPetId(id: number) {
-    const pet = await this.prisma.db.orm.public.Pets.where({ id }).first();
+  async findByPetId(id: number, currentUser: JwtPayload) {
+    const pet =
+      currentUser.role === 2
+        ? await this.prisma.db.orm.public.Pets
+          .where({
+            id,
+            userId: currentUser.userId,
+          })
+          .first()
+        : await this.prisma.db.orm.public.Pets
+          .where({
+            id,
+          })
+          .first();
 
     if (!pet) {
-      throw new NotFoundException('Pet not found');
+      throw new NotFoundException(
+        'Pet not found',
+      );
     }
 
     const petWeights = await this.prisma.db.orm.public.PetWeights.where({ petId: pet.id }).all();
@@ -78,21 +112,71 @@ export class ServicesService {
       .filter((item) => item !== null);
   }
 
-  update(id: number, updateServiceDto: UpdateServiceDto) {
-    return this.prisma.db.orm.public.Services.where({ id }).update(updateServiceDto);
+  async update(
+    id: number,
+    currentUser: JwtPayload,
+    dto: UpdateServiceDto,
+  ) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to update services',
+      );
+    }
+
+    const service =
+      await this.prisma.db.orm.public.Services
+        .where({ id })
+        .first();
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    return this.prisma.db.orm.public.Services
+      .where({ id })
+      .update(dto);
   }
 
-  async remove(id: number) {
-    await this.prisma.db.orm.public.Services.where({ id }).delete();
+  async remove(
+    id: number,
+    currentUser: JwtPayload,
+  ) {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to delete services',
+      );
+    }
+
+    const service =
+      await this.prisma.db.orm.public.Services
+        .where({ id })
+        .first();
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    await this.prisma.db.orm.public.Services
+      .where({ id })
+      .delete();
+
     return {
       message: 'Service deleted successfully',
     };
   }
 
-  async removeAll(): Promise<{
+  async removeAll(
+    currentUser: JwtPayload
+  ): Promise<{
     message: string;
     deletedCount: number;
   }> {
+    if (currentUser.role === 2) {
+      throw new ForbiddenException(
+        'You do not have permission to delete all services',
+      );
+    }
+
     const deletedCount = await this.prisma.db.orm.public.Services.where({}).deleteAndCount();
     return {
       message: 'All services deleted successfully',

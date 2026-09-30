@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+
+import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../../common/auth/authenticated-request.interface';
 
 import { ProductStocksService } from './product-stocks.service';
 import { CreateProductStockDto } from './dto/create-product-stock.dto';
@@ -8,13 +11,18 @@ import { UpdateProductStockDto } from './dto/update-product-stock.dto';
 export class ProductStocksController {
   constructor(
     private readonly productStocksService: ProductStocksService,
-  ) {}
+  ) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
-    @Body() createProductStockDto: CreateProductStockDto,
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: CreateProductStockDto,
   ) {
-    return this.productStocksService.create(createProductStockDto);
+    return this.productStocksService.create(
+      request.user,
+      dto,
+    );
   }
 
   @Get()
@@ -30,28 +38,38 @@ export class ProductStocksController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateProductStockDto: UpdateProductStockDto,
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: UpdateProductStockDto,
   ) {
     return this.productStocksService.update(
       id,
-      updateProductStockDto,
+      request.user,
+      dto,
     );
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<{ message: string }> {
-    return this.productStocksService.remove(id);
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.productStocksService.remove(
+      id,
+      request.user,
+    );
   }
 
   @Delete()
-  async removeAll(): Promise<{
-    message: string;
-    deletedCount: number;
-  }> {
-    return this.productStocksService.removeAll();
+  @UseGuards(JwtAuthGuard)
+  async removeAll(
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.productStocksService.removeAll(
+      request.user,
+    );
   }
 }

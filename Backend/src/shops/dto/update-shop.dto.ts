@@ -32,4 +32,8 @@ export class UpdateShopDto {
   @IsString({ message: 'Description must be a string.' })
   @IsNotEmpty({ message: 'Description is required.' })
   description!: string;
+
+  @IsString({ message: 'Image must be a string.' })
+  @IsNotEmpty({ message: 'Image is required.' })
+  image!: string;
 }

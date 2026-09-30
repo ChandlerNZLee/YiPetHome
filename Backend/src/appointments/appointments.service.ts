@@ -1072,21 +1072,25 @@ export class AppointmentsService {
     // 2. Appointment service snapshot
     // --------------------------------------------------
 
-    const appointmentService =
+    const appointmentServices =
       await this.prisma.db.orm.public.AppointmentServices
         .where({
           appointmentId: id,
         })
-        .first();
+        .all();
 
-    if (!appointmentService) {
+    if (appointmentServices.length === 0) {
       throw new NotFoundException(
-        'Appointment service not found',
+        'Appointment services not found',
       );
     }
 
     const durationMinutes =
-      appointmentService.duration * 30;
+      appointmentServices.reduce(
+        (total, service) =>
+          total + service.duration * 30,
+        0,
+      );
 
     if (durationMinutes <= 0) {
       throw new BadRequestException(
@@ -1442,19 +1446,29 @@ export class AppointmentsService {
     currentUser: JwtPayload,
   ) {
     if (currentUser.role === 2) {
-      await this.prisma.db.orm.public.Appointments
-        .where({
-          id,
-          userId: currentUser.userId,
-        })
-        .delete();
-    } else {
-      await this.prisma.db.orm.public.Appointments
-        .where({
-          id,
-        })
-        .delete();
+      throw new ForbiddenException(
+        'You do not have permission to delete appointments',
+      );
     }
+
+    const appointment =
+      await this.prisma.db.orm.public.Appointments
+        .where({
+          id,
+        })
+        .first();
+
+    if (!appointment) {
+      throw new NotFoundException(
+        'Appointment not found',
+      );
+    }
+
+    await this.prisma.db.orm.public.Appointments
+      .where({
+        id,
+      })
+      .delete();
 
     return {
       message: 'Appointment deleted successfully',

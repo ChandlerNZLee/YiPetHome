@@ -1,6 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    ForbiddenException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
+
+import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 import type { CreateGroomerDto } from './dto/create-groomer.dto';
 import type { UpdateGroomerDto } from './dto/update-groomer.dto';
@@ -9,8 +16,31 @@ import type { UpdateGroomerDto } from './dto/update-groomer.dto';
 export class GroomersService {
     constructor(private readonly prisma: PrismaService) { }
 
-    create(createGroomerDto: CreateGroomerDto) {
-        return this.prisma.db.orm.public.Groomers.create(createGroomerDto);
+    async create(
+        currentUser: JwtPayload,
+        createGroomerDto: CreateGroomerDto,
+    ) {
+        if (currentUser.role === 2) {
+            throw new ForbiddenException(
+                'You do not have permission to create groomers',
+            );
+        }
+
+        const shop =
+            await this.prisma.db.orm.public.Shops
+                .where({
+                    id: createGroomerDto.shopId,
+                })
+                .first();
+
+        if (!shop) {
+            throw new BadRequestException(
+                'Shop not found',
+            );
+        }
+
+        return this.prisma.db.orm.public.Groomers
+            .create(createGroomerDto);
     }
 
     async findAll() {
@@ -26,29 +56,112 @@ export class GroomersService {
         });
     }
 
-    findOne(id: number) {
-        return this.prisma.db.orm.public.Groomers.where({ id }).first();
+    async findOne(id: number) {
+        const groomer =
+            await this.prisma.db.orm.public.Groomers
+                .where({ id })
+                .first();
+
+        if (!groomer) {
+            throw new NotFoundException(
+                'Groomer not found',
+            );
+        }
+
+        return groomer;
     }
 
     async findByShopId(id: number) {
         return this.prisma.db.orm.public.Groomers.where({ shopId: id }).all();
     }
 
-    update(id: number, updateGroomerDto: UpdateGroomerDto) {
-        return this.prisma.db.orm.public.Groomers.where({ id }).update(updateGroomerDto);
+    async update(
+        id: number,
+        currentUser: JwtPayload,
+        updateGroomerDto: UpdateGroomerDto,
+    ) {
+        if (currentUser.role === 2) {
+            throw new ForbiddenException(
+                'You do not have permission to update groomers',
+            );
+        }
+
+        const groomer =
+            await this.prisma.db.orm.public.Groomers
+                .where({ id })
+                .first();
+
+        if (!groomer) {
+            throw new NotFoundException(
+                'Groomer not found',
+            );
+        }
+
+        const shop =
+            await this.prisma.db.orm.public.Shops
+                .where({
+                    id: updateGroomerDto.shopId,
+                })
+                .first();
+
+        if (!shop) {
+            throw new BadRequestException(
+                'Shop not found',
+            );
+        }
+
+        await this.prisma.db.orm.public.Groomers
+            .where({ id })
+            .update(updateGroomerDto);
+
+        return {
+            success: true,
+            message: 'Groomer updated successfully',
+        };
     }
 
-    async remove(id: number) {
-        await this.prisma.db.orm.public.Groomers.where({ id }).delete();
+    async remove(
+        id: number,
+        currentUser: JwtPayload,
+    ) {
+        if (currentUser.role === 2) {
+            throw new ForbiddenException(
+                'You do not have permission to delete groomers',
+            );
+        }
+
+        const groomer =
+            await this.prisma.db.orm.public.Groomers
+                .where({ id })
+                .first();
+
+        if (!groomer) {
+            throw new NotFoundException(
+                'Groomer not found',
+            );
+        }
+
+        await this.prisma.db.orm.public.Groomers
+            .where({ id })
+            .delete();
+
         return {
             message: 'Groomer deleted successfully',
         };
     }
 
-    async removeAll(): Promise<{
+    async removeAll(
+        currentUser: JwtPayload
+    ): Promise<{
         message: string;
         deletedCount: number;
     }> {
+        if (currentUser.role === 2) {
+            throw new ForbiddenException(
+                'You do not have permission to delete all groomers',
+            );
+        }
+
         const deletedCount = await this.prisma.db.orm.public.Groomers.where({}).deleteAndCount();
         return {
             message: 'All groomers deleted successfully',

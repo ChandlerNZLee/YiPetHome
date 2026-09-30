@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+
+import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../../common/auth/authenticated-request.interface';
 
 import { ServicePricesService } from './service-prices.service';
 import { CreateServicePriceDto } from './dto/create-service-price.dto';
@@ -8,13 +11,15 @@ import { UpdateServicePriceDto } from './dto/update-service-price.dto';
 export class ServicePricesController {
   constructor(
     private readonly servicePricesService: ServicePricesService,
-  ) {}
+  ) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
+    @Req() request: AuthenticatedRequest,
     @Body() createServicePriceDto: CreateServicePriceDto,
   ) {
-    return this.servicePricesService.create(createServicePriceDto);
+    return this.servicePricesService.create(request.user, createServicePriceDto);
   }
 
   @Get()
@@ -30,28 +35,36 @@ export class ServicePricesController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
     @Body() updateServicePriceDto: UpdateServicePriceDto,
   ) {
     return this.servicePricesService.update(
       id,
+      request.user,
       updateServicePriceDto,
     );
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
   ): Promise<{ message: string }> {
-    return this.servicePricesService.remove(id);
+    return this.servicePricesService.remove(id, request.user);
   }
 
   @Delete()
-  async removeAll(): Promise<{
+  @UseGuards(JwtAuthGuard)
+  async removeAll(
+    @Req() request: AuthenticatedRequest
+  ): Promise<{
     message: string;
     deletedCount: number;
   }> {
-    return this.servicePricesService.removeAll();
+    return this.servicePricesService.removeAll(request.user);
   }
 }

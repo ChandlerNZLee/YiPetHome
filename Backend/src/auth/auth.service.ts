@@ -10,12 +10,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 
 import type { JwtPayload } from './interfaces/jwt-payload.interface';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import type { LoginWebDto } from './dto/login-web.dto';
 import type { LoginAppDto } from './dto/login-app.dto';
 import { RegisterAppDto } from './dto/register-app.dto';
-import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import { ResetUserDto } from 'src/users/dto/reset-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 
 @Injectable()
@@ -39,20 +38,14 @@ export class AuthService {
     });
   }
 
-  async webRegister(createUserDto: CreateUserDto) {
-    const existingUser = await this.prisma.db.orm.public.Users.where({ username: createUserDto.username }).first();
+  private sanitizeUser(user: any) {
+    const safeUser = {
+      ...user,
+    };
 
-    if (existingUser) {
-      throw new ConflictException('Username is already registered');
-    }
-
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const user = await this.prisma.db.orm.public.Users.create({
-      ...createUserDto,
-      password: hashedPassword,
-    });
-
-    const { password, ...safeUser } = user;
+    delete safeUser.password;
+    delete safeUser.resetToken;
+    delete safeUser.resetExpires;
 
     return safeUser;
   }
@@ -63,7 +56,7 @@ export class AuthService {
     );
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid username or password');
     }
 
     const passwordMatched = await bcrypt.compare(
@@ -82,7 +75,7 @@ export class AuthService {
     };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    const { password, ...safeUser } = user;
+    const safeUser = this.sanitizeUser(user);
 
     return {
       accessToken,
@@ -207,7 +200,7 @@ export class AuthService {
     };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    const { password, ...safeUser } = user;
+    const safeUser = this.sanitizeUser(user);
 
     return {
       accessToken,
@@ -223,7 +216,7 @@ export class AuthService {
 
     if (!user) {
       return {
-        success: false,
+        success: true,
         message:
           'If the account exists, a reset email has been sent.',
       };
@@ -234,17 +227,27 @@ export class AuthService {
       .update(token)
       .digest('hex');
 
-    const updateUserDto: UpdateUserDto = {
-      reset_token: tokenHash,
-      reset_expires: new Date(
-        Date.now() + 30 * 60 * 1000,
-      )
-    };
-    await this.usersService.update(user.id, updateUserDto);
+    await this.prisma.db.orm.public.Users
+      .where({
+        id: user.id,
+      })
+      .update({
+        resetToken: tokenHash,
+        resetExpires: new Date(
+          Date.now() + 30 * 60 * 1000,
+        ),
+      });
 
     try {
-      const resetPasswordUrl =
-        `http://localhost:5173/reset-password?token=${encodeURIComponent(token)}`;
+      const webUrl = process.env.WEB_URL;
+
+      if (!webUrl) {
+        throw new InternalServerErrorException(
+          'WEB_URL is not configured',
+        );
+      }
+
+      const resetPasswordUrl = `${webUrl}/reset-password?token=${encodeURIComponent(token)}`;
 
       const templatePath = path.join(
         process.cwd(),
@@ -273,5 +276,55 @@ export class AuthService {
 
       throw new InternalServerErrorException('Failed to send email');
     }
+  }
+
+  async changePassword(
+    userId: number,
+    dto: ChangePasswordDto,
+  ) {
+    const user =
+      await this.prisma.db.orm.public.Users
+        .where({
+          id: userId,
+        })
+        .first();
+
+    if (!user) {
+      throw new UnauthorizedException(
+        'User not found',
+      );
+    }
+
+    const passwordMatched =
+      await bcrypt.compare(
+        dto.currentPassword,
+        user.password,
+      );
+
+    if (!passwordMatched) {
+      throw new BadRequestException(
+        'Current password is incorrect',
+      );
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(
+        dto.newPassword,
+        10,
+      );
+
+    await this.prisma.db.orm.public.Users
+      .where({
+        id: userId,
+      })
+      .update({
+        password: hashedPassword,
+      });
+
+    return {
+      success: true,
+      message:
+        'Password changed successfully',
+    };
   }
 }
