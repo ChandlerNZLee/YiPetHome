@@ -29,7 +29,7 @@ function App() {
     api
       .post(`/auth/web/login`, { username, password })
       .then((res) => {
-        let token = res.data.token;
+        let token = res.data.accessToken;
         let userrole = res.data.user.role;
         if (userrole !== 2) {
           localStorage.setItem("token", token);
