@@ -17,11 +17,8 @@ class UserService {
   final ApiClient _api = ApiClient.instance;
 
   Future<UserResponse> getUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('user_id');
-
     final result = await _api.get<UserResponse>(
-      '/users/$userId',
+      '/users/me',
       parser: (data) {
         return UserResponse.fromJson(data as Map<String, dynamic>);
       },
